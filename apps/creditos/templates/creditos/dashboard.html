@@ -1,0 +1,402 @@
+{% extends 'layouts/base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Encabezado -->
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Dashboard de Créditos</h1>
+        <div class="flex space-x-4">
+            {% if user.perfil.rol == "ADMIN" %}
+            <a href="{% url 'creditos:crear_credito' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                Nuevo Crédito
+                <i class="fas fa-plus mr-2"></i>
+            </a>
+            {% endif %}
+            <a href="{% url 'creditos:listar_creditos' %}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                Lista de creditos
+                <i class="fas fa-download mr-2"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Créditos -->
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-500 font-medium">Total Créditos</p>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ total_creditos }}</h3>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <i class="fas fa-file-contract text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Créditos Activos -->
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-500 font-medium">Créditos Activos</p>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ creditos_activos }}</h3>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Créditos Morosos -->
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-500 font-medium">Créditos Morosos</p>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ creditos_morosos }}</h3>
+                </div>
+                <div class="bg-red-100 p-3 rounded-full">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monto por Cobrar -->
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-500 font-medium">Monto por Cobrar</p>
+                    <h3 class="text-2xl font-bold text-gray-800">${{ monto_por_cobrar|floatformat:2|intcomma }}</h3>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded-full">
+                    <i class="fas fa-dollar-sign text-yellow-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Gráficos y Alertas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Gráfico de Distribución por Tipo de Pago -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Distribución por Tipo de Pago</h2>
+                <div class="flex space-x-2">
+                    <span class="flex items-center">
+                        <span class="w-3 h-3 bg-blue-500 rounded-full mr-1"></span>
+                        <span class="text-sm text-gray-600">Semanal</span>
+                    </span>
+                    <span class="flex items-center">
+                        <span class="w-3 h-3 bg-green-500 rounded-full mr-1"></span>
+                        <span class="text-sm text-gray-600">Mensual</span>
+                    </span>
+                </div>
+            </div>
+            <div class="h-64">
+                <canvas id="tipoPagoChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Próximos Vencimientos -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Próximos Vencimientos</h2>
+                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {{ creditos_proximos_vencer|length }} créditos
+                </span>
+            </div>
+            <div class="space-y-4">
+                {% for credito in creditos_proximos_vencer %}
+                <div class="border rounded-lg p-4 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-medium text-gray-800">{{ credito.cliente }}</h3>
+                            <p class="text-sm text-gray-500">
+                                {% for detalle in credito.venta.detalles.all %}
+                                {{ detalle.producto.nombre }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
+                            {{ credito.tipo_pago }}
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Vence el {{ credito.fecha_fin|date:"d M Y" }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ credito.progreso }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex justify-end space-x-2">
+                        <a href="{% url 'creditos:detalle_credito' credito.pk %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            <i class="fas fa-eye mr-1"></i> Ver
+                        </a>
+                        <!-- 
+                        <button class="text-green-600 hover:text-green-800 text-sm font-medium">
+                            <i class="fas fa-money-bill-wave mr-1"></i> Pagar
+                        </button>
+                        -->
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4 text-gray-500">
+                    No hay créditos próximos a vencer
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Créditos Vencidos -->
+    <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+        <div class="border-b px-6 py-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800">Créditos Vencidos Con Cuotas Pendientes</h2>
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {{ creditos_vencidos|length }} vencidos
+                </span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Productos</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto Pendiente</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Días de atraso</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for credito in creditos_vencidos %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <img src="{{credito.cliente.imagen.url}}" class="relative inline-block h-10 w-10 !rounded-full object-cover object-center" />
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ credito.cliente }}</div>
+                                    <div class="text-sm text-gray-500">{{ credito.cliente.telefono|default:"Sin teléfono" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex flex-wrap gap-1">
+                                {% if credito.venta.detalles.all %}
+                                    {% for detalle in credito.venta.detalles.all %}
+                                        {% if detalle.producto %}
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                                            {{ detalle.producto.nombre }}
+                                        </span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                                        Sin productos registrados
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ${{ credito.deuda_pendiente|intcomma }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                                {{ credito.dias_restantes }} Dias
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                                {{ credito.get_estado_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="https://wa.me/593{{ credito.cliente.telefono|slice:'1:' }}" target="_blank" class="text-blue-600 font-semibold hover:underline mr-2">
+                                <i class="fas fa-phone-alt mr-1"></i>WhatsApp
+                            </a>
+                            <a href="{% url 'creditos:registrar_pago' credito.pk %}" class="text-green-600 hover:text-green-900">
+                                <i class="fas fa-hand-holding-usd mr-1"></i>Cobrar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No hay créditos vencidos
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Créditos Con cuotas atrasadas -->
+    <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+        <div class="border-b px-6 py-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800">Créditos Con Cuotas Pendientes</h2>
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {{ creditos_cuotas_atrasadas|length }} Atrasados
+                </span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Productos</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto Pendiente</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NCA</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Días de atraso</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for credito in creditos_cuotas_atrasadas %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <img src="{{credito.cliente.imagen.url}}" class="relative inline-block h-10 w-10 !rounded-full object-cover object-center" />
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ credito.cliente }}</div>
+                                    <div class="text-sm text-gray-500">{{ credito.cliente.telefono|default:"Sin teléfono" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex flex-wrap gap-1">
+                                {% if credito.venta.detalles.all %}
+                                    {% for detalle in credito.venta.detalles.all %}
+                                        {% if detalle.producto %}
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                                            {{ detalle.producto.nombre }}
+                                        </span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                                        Sin productos registrados
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ${{ credito.deuda_pendiente|intcomma }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ credito.num_cuotas_atrasadas|intcomma }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                                {{ credito.dias_restantes }} Dias
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                                {{ credito.get_estado_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="https://wa.me/593{{ credito.cliente.telefono|slice:'1:' }}" target="_blank" class="text-blue-600 font-semibold hover:underline mr-2">
+                                <i class="fas fa-phone-alt mr-1"></i>WhatsApp
+                            </a>
+                            <a href="{% url 'creditos:registrar_pago' credito.pk %}" class="text-green-600 hover:text-green-900">
+                                <i class="fas fa-hand-holding-usd mr-1"></i>Cobrar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No hay créditos vencidos
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+    <!-- Últimos Créditos Aprobados -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="border-b px-6 py-4">
+            <h2 class="text-xl font-semibold text-gray-800">Últimos Créditos Aprobados</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+            {% for credito in ultimos_creditos %}
+            <div class="border rounded-lg p-4 hover:shadow-md transition">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-medium text-gray-800">{{ credito.cliente }}</h3>
+                        <p class="text-sm text-gray-500">{{ credito.fecha_inicio|date:"d M Y" }}</p>
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded-full 
+                        {% if credito.estado == 'ACTIVO' %}bg-green-100 text-green-800
+                        {% elif credito.estado == 'MOROSO' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ credito.get_estado_display }}
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <p class="text-sm text-gray-600 mb-1">Productos:</p>
+                    <div class="flex flex-wrap gap-1">
+                        {% if credito.venta.detalles.all %}
+                            {% for detalle in credito.venta.detalles.all %}
+                                {% if detalle.producto %}
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                                    {{ detalle.producto.nombre }}
+                                </span>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                                Sin productos registrados
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-gray-600">Total</p>
+                        <p class="font-bold text-gray-800">${{ credito.montoTotal|intcomma }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Cuotas</p>
+                        <p class="font-medium text-gray-800">{{ credito.cuotas }} </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Forma de Pago</p>
+                        <p class="font-medium text-gray-800">{{ credito.tipo_pago|title  }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-8 text-gray-500">
+                No hay créditos recientes
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script type="application/javascript">
+    const distribucionTipoPago = JSON.parse(`{{ distribucion_tipo_pago|escapejs }}`);
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/creditos/tipo_pago_chart.js' %}"></script>
+{% endblock %}

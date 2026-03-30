@@ -1,0 +1,177 @@
+{% extends 'layouts/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center">
+      <img class="h-16 w-auto" src="https://static.rfstat.com/renderforest/images/v2/landing-pics/website-logo/logo-0.webp" alt="Company Logo">
+    </div>
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      Crear una nueva cuenta
+    </h2>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+      <form class="space-y-6" method="POST">
+        {% csrf_token %}
+        
+        <!-- Mensajes de error -->
+        {% if form_user.errors or form_perfil.errors %}
+        <div class="rounded-md bg-red-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <!-- ícono de error -->
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Error en el registro</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <!-- errores de form_user -->
+                {% for field in form_user %}
+                  {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                  {% endfor %}
+                {% endfor %}
+                {% for error in form_user.non_field_errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+
+                <!-- errores de form_perfil -->
+                {% for field in form_perfil %}
+                  {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                  {% endfor %}
+                {% endfor %}
+                {% for error in form_perfil.non_field_errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+
+        <!-- Campo Nombres -->
+        <div>
+          <label for="{{form_user.first_name.id_for_label}}" class="block text-sm font-medium text-gray-700">
+            Nombres
+          </label>
+          <div class="mt-1">
+            {{ form_user.first_name|add_class:"appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" }}
+          </div>
+        </div>
+
+        <!-- Campo Apellidos -->
+        <div>
+          <label for="{{form_user.last_name.id_for_label}}" class="block text-sm font-medium text-gray-700">
+            Apellidos
+          </label>
+          <div class="mt-1">
+            {{ form_user.last_name|add_class:"appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" }}
+          </div>
+        </div>
+
+        <!-- Campo Usuario -->
+        <div>
+          <label for="{{form_user.username.id_for_label}}" class="block text-sm font-medium text-gray-700">
+            Nombre de usuario
+          </label>
+          <div class="mt-1">
+            {{ form_user.username|add_class:"appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" }}
+          </div>
+        </div>
+
+        <!-- Campo Email -->
+        <div>
+          <label for="{{form_user.email.id_for_label}}" class="block text-sm font-medium text-gray-700">
+            Correo electrónico
+          </label>
+          <div class="mt-1">
+            {{ form_user.email|add_class:"appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" }}
+          </div>
+        </div>
+
+        <!-- Campo Contraseña -->
+        <div>
+          <label for="{{form_user.password.id_for_label}}" class="block text-sm font-medium text-gray-700">
+            Contraseña
+          </label>
+          <div class="mt-1">
+            {{ form_user.password|add_class:"appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" }}
+          </div>
+          {% if form.password.help_text %}
+          <p class="mt-2 text-sm text-gray-500">{{ form.password.help_text }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Campo Confirmar Contraseña -->
+        <div>
+          <label for="{{form_user.password2.id_for_label}}" class="block text-sm font-medium text-gray-700">
+            Confirmar contraseña
+          </label>
+          <div class="mt-1">
+            {{ form_user.password2|add_class:"appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" }}
+          </div>
+        </div>
+
+        <!-- Datos de Perfil -->
+        <h3 class="text-lg font-semibold text-gray-700 pt-4">Datos de perfil</h3>
+
+        <!-- Cedula -->
+        <div>
+          <label for="{{form_perfil.cedula.id_for_label}}" class="block text-sm font-medium text-gray-700">Cédula</label>
+          <div class="mt-1">
+            {{ form_perfil.cedula|add_class:"appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" }}
+          </div>
+        </div>
+
+        <!-- Teléfono -->
+        <div>
+          <label for="{{form_perfil.telefono.id_for_label}}" class="block text-sm font-medium text-gray-700">Teléfono</label>
+          <div class="mt-1">
+            {{ form_perfil.telefono|add_class:"appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" }}
+          </div>
+        </div>
+
+        <!-- Foto -->
+        <div>
+          <label for="{{form_perfil.foto_perfil.id_for_label}}" class="block text-sm font-medium text-gray-700">Foto de perfil</label>
+          <div class="mt-1">
+            {{ form_perfil.foto_perfil }}
+          </div>
+        </div>
+
+        <!-- Rol -->
+        <div>
+          <label for="{{form_perfil.rol.id_for_label}}" class="block text-sm font-medium text-gray-700">Rol</label>
+          <div class="mt-1">
+            {{ form_perfil.rol|add_class:"block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" }}
+          </div>
+        </div>
+
+        <!-- Términos y condiciones -->
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <input id="terms" name="terms" type="checkbox" class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded" required>
+          </div>
+          <div class="ml-3 text-sm">
+            <label for="terms" class="font-medium text-gray-700">
+              Acepto los <a href="#" class="text-yellow-600 hover:text-yellow-500">términos y condiciones</a>
+            </label>
+          </div>
+        </div>
+
+        <!-- Botón de submit -->
+        <div>
+          <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+            Registrarse
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

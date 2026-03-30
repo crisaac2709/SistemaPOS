@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Pago</title>
+
+    <!-- Cargar jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #2c3e50;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f0f4f8;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #1abc9c;
+            height: 65px;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 16px;
+            font-weight: 300;
+            margin-top: 5px;
+        }
+
+        .section {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #ecf0f1;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            color: #1abc9c;
+            margin-bottom: 15px;
+            font-weight: 600;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #1abc9c;
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .details .label {
+            font-weight: 600;
+            color: #34495e;
+            width: 45%;
+        }
+
+        .details .value {
+            text-align: right;
+            color: #2c3e50;
+        }
+
+        .payment-info {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+        }
+
+        .payment-info h3 {
+            font-size: 16px;
+            color: #1abc9c;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .total-container {
+            background-color: #3498db; 
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 30px; 
+        }
+
+        .total-container .amount {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            color: #7f8c8d;
+            font-size: 12px;
+            margin-top: 30px;
+        }
+
+        .footer p {
+            margin-bottom: 5px;
+        }
+
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #1abc9c;
+            margin: 15px 0;
+        }
+
+        .highlight {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .centered {
+            text-align: center;
+        }
+
+        /* Botón "Generar PDF" */
+        #generarPDF {
+            background-color: #1abc9c;
+            color: white;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            width: auto;
+            margin: 20px auto;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: block;
+        }
+
+        #generarPDF:hover {
+            background-color: #16a085;
+            transform: scale(1.05);
+        }
+
+        #generarPDF:active {
+            background-color: #1e8b75;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>COMPROBANTE DE PAGO</h1>
+            <p>Documento Oficial de Transacción</p>
+        </div>
+
+        <!-- Crédito Section -->
+        <div class="section">
+            <h2>Detalles del Crédito</h2>
+            <div class="details">
+                <div class="label">ID Crédito:</div>
+                <div class="value highlight">{{ credito.id }}</div>
+            </div>
+            <div class="details">
+                <div class="label">Cliente:</div>
+                <div class="value">{{ cliente.nombres }} {{ cliente.apellidos }}</div>
+            </div>
+            <div class="details">
+                <div class="label">Monto Inicial:</div>
+                <div class="value">${{ credito.montoInicial|floatformat:2 }}</div>
+            </div>
+            <div class="details">
+                <div class="label">Monto Total:</div>
+                <div class="value">${{ credito.montoTotal|floatformat:2 }}</div>
+            </div>
+            <div class="details">
+                <div class="label">Monto por Cuota:</div>
+                <div class="value">${{ credito.montoCuota|floatformat:2 }}</div>
+            </div>
+        </div>
+
+        <!-- Pago Section -->
+        <div class="section">
+            <h2>Detalles del Pago</h2>
+            <div class="details">
+                <div class="label">ID Pago:</div>
+                <div class="value">{{ pago.id }}</div>
+            </div>
+            <div class="details">
+                <div class="label">Fecha de Pago:</div>
+                <div class="value">{{ pago.fecha|date:"d/m/Y" }}</div>
+            </div>
+            <div class="details">
+                <div class="label">Número de Cuota:</div>
+                <div class="value">{{ pago.cuota }}</div>
+            </div>
+            <div class="details">
+                <div class="label">Método de Pago:</div>
+                <div class="value">{{ pago.metodo_pago }}</div>
+            </div>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="payment-info">
+            <h3>Resumen del Credito</h3>
+            <div class="total-container">
+                <p>Monto Total Pagado:</p>
+                <p class="amount">${{ monto_pagado_total|floatformat:2 }}</p>
+                <p>Estado del credito:</p>
+                <p class="amount">{{credito.estado}}</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Sistema de Créditos</strong></p>
+            <p>Documento generado automáticamente</p>
+            <p>Para soporte, visita <a href="mailto:soporte@credito.com">soporte@credito.com</a></p>
+            <p>© 2025 - Todos los derechos reservados</p>
+        </div>
+
+        <!-- Generar PDF Button -->
+        <button id="generarPDF">Generar PDF</button>
+    </div>
+
+    <script>
+        document.getElementById('generarPDF').addEventListener('click', function() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    // --- Configuración de Colores ---
+    const primaryColor = [26, 188, 156];   // Verde esmeralda
+    const secondaryColor = [52, 152, 219]; // Azul
+    const darkColor = [44, 62, 80];        // Gris oscuro
+    const lightGray = [248, 249, 250];    // Fondo secciones
+
+    // --- Header ---
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, 210, 45, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text('COMPROBANTE DE PAGO', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text('Documento Oficial de Transacción', 105, 30, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text('Fecha de emisión: ' + new Date().toLocaleDateString(), 105, 38, { align: 'center' });
+
+    // --- Sección: Detalles del Crédito ---
+    let currentY = 55;
+    
+    // Título sección
+    doc.setFontSize(14);
+    doc.setTextColor(...primaryColor);
+    doc.setFont("helvetica", "bold");
+    doc.text('DETALLES DEL CRÉDITO', 15, currentY);
+    doc.setDrawColor(...primaryColor);
+    doc.line(15, currentY + 2, 60, currentY + 2); // Subrayado decorativo
+
+    // Caja de fondo para detalles
+    doc.setFillColor(...lightGray);
+    doc.roundedRect(15, currentY + 6, 180, 45, 3, 3, 'F');
+    
+    doc.setFontSize(11);
+    doc.setTextColor(...darkColor);
+    doc.setFont("helvetica", "bold");
+    
+    let textY = currentY + 15;
+    const leftCol = 20;
+    const rightCol = 140;
+
+    // Filas de datos
+    const drawRow = (label, value, y) => {
+        doc.setFont("helvetica", "bold");
+        doc.text(label, leftCol, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(String(value), rightCol, y, { align: 'left' });
+    };
+
+    drawRow('ID Crédito:', '{{ credito.id }}', textY);
+    drawRow('Cliente:', '{{ cliente.nombres }} {{ cliente.apellidos }}', textY + 8);
+    drawRow('Monto Inicial:', '${{ credito.montoInicial|floatformat:2 }}', textY + 16);
+    drawRow('Monto por Cuota:', '${{ credito.montoCuota|floatformat:2 }}', textY + 24);
+
+    // --- Sección: Detalles del Pago ---
+    currentY = 115;
+    doc.setFontSize(14);
+    doc.setTextColor(...primaryColor);
+    doc.setFont("helvetica", "bold");
+    doc.text('DETALLES DEL PAGO', 15, currentY);
+    doc.line(15, currentY + 2, 58, currentY + 2);
+
+    doc.setFillColor(...lightGray);
+    doc.roundedRect(15, currentY + 6, 180, 35, 3, 3, 'F');
+
+    textY = currentY + 15;
+    drawRow('ID Pago:', '{{ pago.id }}', textY);
+    drawRow('Fecha de Pago:', '{{ pago.fecha|date:"d/m/Y" }}', textY + 8);
+    drawRow('Método de Pago:', '{{ pago.metodo_pago }}', textY + 16);
+
+    // --- Banner de Resumen (Azul) ---
+    currentY = 165;
+    doc.setFillColor(...secondaryColor);
+    doc.roundedRect(15, currentY, 180, 25, 4, 4, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.text('TOTAL PAGADO EN ESTA TRANSACCIÓN', 25, currentY + 15);
+    
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text('${{ monto_pagado_total|floatformat:2 }}', 185, currentY + 16, { align: 'right' });
+
+    // Estado del crédito
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text('Estado del crédito: {{ credito.estado }}', 25, currentY + 21);
+
+    // --- Pie de página ---
+    doc.setTextColor(150, 150, 150);
+    doc.setFontSize(9);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 270, 190, 270); // Línea final
+    
+    doc.text('Sistema de Créditos - Documento Digital Validado', 105, 276, { align: 'center' });
+    doc.setTextColor(...secondaryColor);
+    doc.text('soporte@credito.com', 105, 282, { align: 'center' });
+
+    // Finalizar
+    doc.save(`Comprobante_{{ pago.id }}.pdf`);
+});
+    </script>
+</body>
+</html>

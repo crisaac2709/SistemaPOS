@@ -1,0 +1,96 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">📦 Movimientos de Stock</h1>
+        <a href="{% url 'productos:ingresar_unidades' %}" 
+          class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded shadow transition">
+            Reabastecer
+        </a>
+    </div>
+
+    <!-- Formulario de filtros -->
+    <form method="get" class="bg-white p-6 rounded-lg shadow mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Producto</label>
+                <select name="producto" class="w-full select2-enable p-2 border border-gray-300 rounded-md shadow-sm">
+                    <option value="">-- Todos --</option>
+                    {% for prod in productos %}
+                        <option value="{{ prod.id }}" {% if producto_id == prod.id|stringformat:"s" %}selected{% endif %}>{{ prod.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio</label>
+                <input type="date" name="fecha_inicio" value="{{ fecha_inicio }}" class="w-full p-2 border border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Fin</label>
+                <input type="date" name="fecha_fin" value="{{ fecha_fin }}" class="w-full p-2 border border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow">Filtrar</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabla de movimientos -->
+    <div class="overflow-x-auto bg-white shadow rounded-lg">
+        <table class="min-w-full text-sm text-left text-gray-700">
+            <thead class="bg-gray-100 border-b text-xs uppercase text-gray-600">
+                <tr>
+                    <th class="px-6 py-3">Producto</th>
+                    <th class="px-6 py-3">Tipo</th>
+                    <th class="px-6 py-3">Cantidad</th>
+                    <th class="px-6 py-3">Usuario</th>
+                    <th class="px-6 py-3">Descripcion</th>
+                    <th class="px-6 py-3">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movimiento in page_obj %}
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="px-6 py-2">{{ movimiento.producto.nombre }}</td>
+                        <td class="px-6 py-2 capitalize">{{ movimiento.tipo }}</td>
+                        <td class="px-6 py-2">{{ movimiento.cantidad }}</td>
+                        <td class="px-6 py-2">{{ movimiento.usuario.get_full_name|default:movimiento.usuario.username }}</td>
+                        <td class="px-6 py-2">{{ movimiento.motivo|default_if_none:"Sin motivo" }}</td>
+                        <td class="px-6 py-2 text-sm text-gray-500">{{ movimiento.fecha|date:"d M Y, H:i" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">No hay movimientos registrados.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="mt-6 flex justify-center">
+        <nav class="inline-flex shadow-sm -space-x-px text-sm">
+            {% if page_obj.has_previous %}
+                <a href="?{% if producto_id %}producto={{ producto_id }}&{% endif %}{% if fecha_inicio %}fecha_inicio={{ fecha_inicio }}&{% endif %}{% if fecha_fin %}fecha_fin={{ fecha_fin }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-3 py-2 ml-0 leading-tight text-gray-600 bg-white border border-gray-300 rounded-l hover:bg-gray-100">Anterior</a>
+            {% else %}
+                <span class="px-3 py-2 ml-0 leading-tight text-gray-400 bg-gray-100 border border-gray-300 rounded-l">Anterior</span>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="px-3 py-2 leading-tight text-white bg-blue-600 border border-blue-600">{{ num }}</span>
+                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                    <a href="?{% if producto_id %}producto={{ producto_id }}&{% endif %}{% if fecha_inicio %}fecha_inicio={{ fecha_inicio }}&{% endif %}{% if fecha_fin %}fecha_fin={{ fecha_fin }}&{% endif %}page={{ num }}" class="px-3 py-2 leading-tight text-gray-600 bg-white border border-gray-300 hover:bg-gray-100">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?{% if producto_id %}producto={{ producto_id }}&{% endif %}{% if fecha_inicio %}fecha_inicio={{ fecha_inicio }}&{% endif %}{% if fecha_fin %}fecha_fin={{ fecha_fin }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-3 py-2 leading-tight text-gray-600 bg-white border border-gray-300 rounded-r hover:bg-gray-100">Siguiente</a>
+            {% else %}
+                <span class="px-3 py-2 leading-tight text-gray-400 bg-gray-100 border border-gray-300 rounded-r">Siguiente</span>
+            {% endif %}
+        </nav>
+    </div>
+</div>
+{% endblock %}

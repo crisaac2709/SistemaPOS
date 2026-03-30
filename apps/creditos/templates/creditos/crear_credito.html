@@ -1,0 +1,122 @@
+{% extends 'layouts/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md mx-auto">
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 py-6 px-8">
+                <h2 class="text-2xl font-bold text-white text-center">Registrar Nuevo Crédito</h2>
+                <p class="mt-1 text-blue-100 text-center text-sm">Complete todos los campos requeridos</p>
+            </div>
+            
+            <div class="p-8">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label for="{{form.cliente.id_for_label}}" class="block text-sm font-medium text-gray-700 mb-1">
+                                Cliente <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                {# Agregamos la clase select2-enable aquí para que el JS la detecte #}
+                                {{ form.cliente|add_class:"select2-enable block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" }}
+                                
+                                {# Nota: Eliminamos el icono absoluto derecho porque Select2 genera su propia flecha #}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="{{form.montoTotal.id_for_label}}" class="block text-sm font-medium text-gray-700 mb-1">
+                                Monto Total <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500">$</span>
+                                </div>
+                                {{ form.montoTotal|add_class:"block w-full pl-8 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="{{form.montoInicial.id_for_label}}" class="block text-sm font-medium text-gray-700 mb-1">
+                                Valor de Entrada <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500">$</span>
+                                </div>
+                                {{ form.montoInicial|add_class:"block w-full pl-8 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" }}
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="{{form.fecha_inicio.id_for_label}}" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Fecha Inicio <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    {{ form.fecha_inicio|add_class:"block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" }}
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <!--i class="fa-solid fa-calendar text-gray-400 text-sm"></i>-->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="{{form.fecha_fin.id_for_label}}" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Fecha Fin <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    {{ form.fecha_fin|add_class:"block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" }}
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <!--i class="fa-solid fa-calendar text-gray-400 text-sm"></i>-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="{{form.tipo_pago.id_for_label}}" class="block text-sm font-medium text-gray-700 mb-1">
+                                Tipo de Pago <span class="text-red-500">*</span>
+                            </label>
+                                {{ form.tipo_pago|add_class:"select2-enable block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" class="w-full flex justify-center items-center py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <i class="fa-solid fa-plus mr-2"></i>
+                            Registrar Crédito
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-8 py-4 bg-gray-50 border-t border-gray-200 text-center">
+                <a href="{% url 'creditos:listar_creditos' %}" class="text-sm font-medium text-blue-600 hover:text-blue-500 inline-flex items-center">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>
+                    Volver al listado de créditos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+                Swal.fire({
+                    icon: '{% if message.tags == "error" %}error{% else %}success{% endif %}',
+                    title: '{{ message|escapejs }}',
+                    confirmButtonColor: '#2563eb',
+                    confirmButtonText: 'Aceptar'
+                });
+            {% endfor %}
+        });
+    </script>
+{% endif %}
+
+{% endblock %}

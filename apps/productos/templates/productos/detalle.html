@@ -1,0 +1,85 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<body class="bg-gray-100">
+
+<div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg mt-10 bg-white0">
+    <!-- Título del producto -->
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-black mb-6">{{ producto.nombre }}</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Imagen del producto -->
+        <div class="flex justify-center items-center">
+            {% if producto.imagen %}
+                <img style="height: 500px;" src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="rounded-lg shadow-md w-full h-auto object-cover">
+            {% else %}
+                <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+                    Sin imagen
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Detalles del producto -->
+        <div class="space-y-6">
+            <!-- Descripción -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Descripción</h2>
+                <p class="text-gray-900 dark:text-gray-600">{{ producto.descripcion }}</p>
+            </div>
+
+            <!-- Marca -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Marca</h2>
+                <p class="text-gray-900 dark:text-gray-600">{{ producto.marca }}</p>
+            </div>
+
+            <!-- Categoría -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Categoría</h2>
+                <p class="text-gray-900 dark:text-gray-600">{{ producto.categoria }}</p>
+            </div>
+
+            <!-- Proveedor -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Proveedor</h2>
+                <p class="text-gray-900 dark:text-gray-600">{{ producto.proveedor }}</p>
+            </div>
+
+            <!-- Costo -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Costo</h2>
+                <p class="text-gray-900 dark:text-gray-600">${{ producto.costo }}</p>
+            </div>
+
+            <!-- Precio -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Precio</h2>
+                <p class="text-gray-900 dark:text-gray-600">${{ producto.precio }}</p>
+            </div>
+
+            <!-- Stock -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Stock</h2>
+                <p class="text-gray-900 dark:text-gray-600">{{ producto.stock_actual }} unidades disponibles</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acciones -->
+    <div class="mt-8 flex space-x-4">
+        <!-- Botón Editar -->
+        <a href="{% url 'productos:actualizar_producto' producto.pk %}"
+           class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Editar
+        </a>
+
+        <!-- Botón Eliminar -->
+        <a href="{% url 'productos:eliminar_producto' producto.pk %}"
+           class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+            Eliminar
+        </a>
+    </div>
+</div>
+
+</body>
+{% endblock %}

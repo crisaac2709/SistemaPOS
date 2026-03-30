@@ -1,0 +1,64 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Encabezado -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-3">Recomendaciones personalizadas</h1>
+            <p class="text-xl text-gray-600">Productos seleccionados especialmente para {{ cliente.nombres }} {{ cliente.apellidos }}</p>
+        </div>
+
+        <!-- Contenido principal -->
+        {% if recomendaciones == "Cliente sin compras previas." or recomendaciones == "No hay recomendaciones disponibles." %}
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg shadow-sm max-w-2xl mx-auto">
+                <p class="text-lg text-blue-800 font-medium">{{ recomendaciones }}</p>
+                <p class="text-gray-600 mt-2">Explora nuestro catálogo para descubrir productos que puedan interesarte.</p>
+            </div>
+        {% else %}
+            <div class="space-y-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 px-4">Nuestras recomendaciones</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {% for producto in recomendaciones %}
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                        <!-- Imagen del producto -->
+                        <div class="relative h-56 overflow-hidden">
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" 
+                                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                            <span class="absolute top-3 right-3 bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                {{ producto.categoria }}
+                            </span>
+                        </div>
+                        
+                        <!-- Detalles del producto -->
+                        <div class="p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900 mb-1">{{ producto.nombre }}</h3>
+                                    <p class="text-sm text-gray-500">{{ producto.marca }}</p>
+                                    <p class="text-sm text-gray-500">{{ producto.categoria }}</p>
+                                </div>
+                                <span class="text-xl font-bold text-blue-600">
+                                    ${{ producto.precio|floatformat:2 }}
+                                </span>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Botón de volver -->
+        <div class="mt-12 text-center">
+            <a href="{% url 'clientes:listar_clientes' %}" 
+               class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 transition-colors duration-200">
+                ← Volver al listado de clientes
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

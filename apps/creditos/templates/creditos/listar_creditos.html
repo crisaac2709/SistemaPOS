@@ -1,0 +1,253 @@
+{% extends 'layouts/base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Encabezado y botón -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <h2 class="text-3xl font-bold text-gray-800">Gestión de Créditos</h2>
+        <a href="{% url 'creditos:crear_credito' %}" 
+           class="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+            </svg>
+            Nuevo Crédito
+        </a>
+    </div>
+
+    <form method="get" class="mb-6 bg-white p-5 rounded-2xl shadow-md border border-gray-100">
+
+    <div class="flex flex-col md:flex-row md:items-end gap-3">
+
+        <!-- 🔎 BUSCADOR -->
+        <div class="flex-1">
+            <label class="text-xs text-gray-500">Buscar</label>
+            <input type="text" name="search"
+                placeholder="Nombres o cedula..."
+                value="{{ search }}"
+                class="w-60 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- 📊 ESTADO -->
+        <div class="w-full md:w-40">
+            <label class="text-xs text-gray-500">Estado</label>
+            <select name="estado"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Todos</option>
+                <option value="ACTIVO" {% if estado == "ACTIVO" %}selected{% endif %}>Activo</option>
+                <option value="MOROSO" {% if estado == "MOROSO" %}selected{% endif %}>Moroso</option>
+                <option value="FINALIZADO" {% if estado == "FINALIZADO" %}selected{% endif %}>Finalizado</option>
+            </select>
+        </div>
+
+        <!-- 📅 DESDE -->
+        <div class="w-full md:w-40">
+            <label class="text-xs text-gray-500">Desde</label>
+            <input type="date" name="fecha_inicio"
+                value="{{ fecha_inicio }}"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- 📅 HASTA -->
+        <div class="w-full md:w-40">
+            <label class="text-xs text-gray-500">Hasta</label>
+            <input type="date" name="fecha_fin"
+                value="{{ fecha_fin }}"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- 🔘 BOTONES -->
+        <div class="flex gap-2 md:ml-2">
+            <button type="submit"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
+                Filtrar
+            </button>
+
+            <a href="{% url 'creditos:listar_creditos' %}"
+                class="bg-gray-400 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-500 transition">
+                Limpiar
+            </a>
+        </div>
+
+    </div>
+
+</form>
+
+    <!-- Tarjeta contenedora -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+        <!-- Tabla responsive -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">#ID Credito</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Cliente</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Monto</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Fechas</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Cuotas</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Estado</th>
+                        <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for credito in creditos %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <!-- Número de crédito -->
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            #{{ credito.pk }}
+                        </td>
+                        
+                        <!-- Cliente -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ credito.cliente }}</div>
+                                    <div class="text-sm text-gray-500">{{ credito.cliente.telefono|default:"Sin teléfono" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <!-- Monto -->
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                            ${{ credito.montoTotal|floatformat:2|intcomma }}
+                        </td>
+                        
+                        <!-- Fechas -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ credito.fecha_inicio|date:"d/m/Y" }}</div>
+                            <div class="text-sm text-gray-500">al {{ credito.fecha_fin|date:"d/m/Y" }}</div>
+                        </td>
+                        
+                        <!-- Cuotas -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" 
+                                         style="width: {% widthratio credito.cuotas_pagadas credito.cuotas 100 %}%">
+                                    </div>
+                                </div>
+                                <span class="text-xs font-medium">
+                                    {{ credito.cuotas_pagadas }}/{{ credito.cuotas }}
+                                </span>
+                            </div>
+                        </td>
+                        
+                        <!-- Estado -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if credito.estado == 'ACTIVO' %}bg-green-100 text-green-800
+                                {% elif credito.estado == 'MOROSO' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ credito.get_estado_display }}
+                            </span>
+                        </td>
+                        
+                        <!-- Acciones -->
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-3">
+                                <!-- Botón Pagar -->
+                                {% if credito.estado != 'FINALIZADO' %}
+                                <a href="{% url 'creditos:registrar_pago' credito.pk %}" 
+                                   class="text-green-600 hover:text-green-900 group"
+                                   title="Registrar pago">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </a>
+                                {% endif %}
+                                <!-- Botón Detalles -->
+                                <a href="{% url 'creditos:detalle_credito' credito.pk %}" 
+                                   class="text-blue-600 hover:text-blue-900 group"
+                                   title="Ver detalles">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </a>
+                                
+                                <!-- Botón Eliminar -->
+                                {% if user.perfil.rol == "ADMIN" %}
+                                <a href="{% url 'creditos:eliminar_credito' credito.pk %}" 
+                                   class="text-red-600 hover:text-red-900 group"
+                                   title="Eliminar crédito">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            No hay créditos registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+         <!-- Paginación -->
+         {% if is_paginated %}
+         <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+             <div class="flex-1 flex justify-between sm:hidden">
+                 {% if page_obj.has_previous %}
+                 <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                     Anterior
+                 </a>
+                 {% endif %}
+                 {% if page_obj.has_next %}
+                 <a href="?page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                     Siguiente
+                 </a>
+                 {% endif %}
+             </div>
+             <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                 <div>
+                     <p class="text-sm text-gray-700">
+                         Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                     </p>
+                 </div>
+                 <div>
+                     <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                         {% if page_obj.has_previous %}
+                         <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                             <i class="fas fa-chevron-left"></i>
+                         </a>
+                         {% endif %}
+ 
+                         {% for num in page_obj.paginator.page_range %}
+                             {% if page_obj.number == num %}
+                             <a href="#" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                 {{ num }}
+                             </a>
+                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                             <a href="?page={{ num }}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                 {{ num }}
+                             </a>
+                             {% endif %}
+                         {% endfor %}
+ 
+                         {% if page_obj.has_next %}
+                         <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                             <i class="fas fa-chevron-right"></i>
+                         </a>
+                         {% endif %}
+                     </nav>
+                 </div>
+             </div>
+         </div>
+         {% endif %}
+    </div>
+</div>
+
+{% endblock %}

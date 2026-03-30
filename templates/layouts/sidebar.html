@@ -1,0 +1,142 @@
+{% load static %}
+
+{% if user.is_authenticated %}
+<!-- Botón hamburguesa -->
+<button id="toggleSidebar" class="md:hidden fixed top-4 left-4 z-50 bg-blue-800 text-white p-2 rounded">
+  ☰
+</button>
+
+<!-- Sidebar Moderno -->
+<div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-blue-900 to-blue-800 shadow-xl transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40">
+  <!-- Encabezado -->
+  <div class="flex items-center justify-center py-6 px-4 border-b border-blue-700">
+    <div class="flex items-center space-x-3">
+      <div class="h-10 w-10 bg-white rounded-full flex items-center justify-center">
+        <span class="text-blue-800 font-bold text-lg">CFH</span>
+      </div>
+      <h1 class="text-white text-xl font-bold tracking-wide">ElectroSmart</h1>
+    </div>
+  </div>
+
+  <!-- Menú de navegación -->
+  <nav class="p-4 space-y-1">
+    
+    <!-- Ventas -->
+    <a href="{% url 'ventas:listar_ventas' %}" 
+      class="flex items-center justify-between px-4 py-3 text-blue-100 hover:bg-blue-700 hover:bg-opacity-50 rounded-lg transition-all duration-200 group">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span class="font-medium">Ventas</span>
+        </div>
+    </a>
+
+    <!-- Créditos -->
+    <a href="{% url 'creditos:dashboard' %}" class="flex items-center justify-between px-4 py-3 text-blue-100 hover:bg-blue-700 hover:bg-opacity-50 rounded-lg transition-all duration-200 group">
+      <div class="flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="font-medium">Créditos</span>
+      </div>
+    </a>
+    
+    {% if user.perfil.rol == "ADMIN" %}
+    <!-- Reportes -->
+    <a href="{% url 'reportes:index' %}" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 hover:bg-opacity-50 rounded-lg transition-all duration-200 group">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+      </svg>
+      Reportes
+    </a>
+    {% endif %}
+
+    
+    <!-- {% if user.perfil.rol == "ADMIN" %} -->
+    <!-- Analitica Productos -->
+     <!-- 
+    <a href="{% url 'ventas:analisis_productos' %}" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 hover:bg-opacity-50 rounded-lg transition-all duration-200 group">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6v12m4-8v8m4-4v4m4-12v12m4-16v16" />
+    </svg>
+      Analisis
+    </a>
+    {% endif %}
+    -->
+
+    
+    <!-- Recordatorios de pago -->
+    <a href="{% url 'correos:confirmar_envio_recordatorio' %}" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 hover:bg-opacity-50 rounded-lg transition-all duration-200 group">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C8.67 6.165 8 7.388 8 8.75v5.408c0 .538-.214 1.055-.595 1.437L6 17h5m4 0v1a3 3 0 11-6 0v-1h6z" />
+      </svg>
+      Recordatorios
+    </a>
+
+
+    <!-- Movimientos -->
+    <a href="{% url 'productos:movimientos_stock' %}" 
+      class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 hover:bg-opacity-50 rounded-lg transition-all duration-200 group">
+      <svg xmlns="http://www.w3.org/2000/svg" 
+          class="h-6 w-6 mr-3 text-blue-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7l-9-4-9 4z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M12 3v18" />
+      </svg>
+      <span class="font-medium">Movimientos</span>
+    </a>
+
+   
+
+    {% if user.perfil.rol == "ADMIN" %}
+    <!-- Panel de Actividades -->
+    <a href="{% url 'usuarios:panel_actividades' %}" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 hover:bg-opacity-50 rounded-lg transition-all duration-200 group">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      Actividades
+    </a>
+    {% endif %}
+
+    <!--
+    {% if user.perfil.rol == "ADMIN" and user.is_superuser %}
+     Registrar Usuario 
+    <a href="{% url 'usuarios:registro' %}" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 hover:bg-opacity-50 rounded-lg transition-all duration-200 group">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Registrar Usuario
+    </a>
+    {% endif %}
+    -->
+
+
+  <!-- Pie de página con información del usuario -->
+  <div class="absolute bottom-0 left-0 right-0 px-4 py-3 bg-blue-700 border-t border-blue-600">
+    <div class="flex items-center space-x-3 overflow-hidden">
+        <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+            {{ user.first_name|first }}{{ user.last_name|first }}
+        </div>
+        <div class="truncate">
+            <p class="text-white font-semibold leading-tight truncate">{{ user.first_name }} {{ user.last_name }}</p>
+            <p class="text-blue-200 text-xs truncate">{{ user.email }}</p>
+        </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Script para toggle -->
+<script>
+  const toggleBtn = document.getElementById('toggleSidebar');
+  const sidebar = document.getElementById('sidebar');
+
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('-translate-x-full');
+  });
+</script>
+
+
+{% endif %}

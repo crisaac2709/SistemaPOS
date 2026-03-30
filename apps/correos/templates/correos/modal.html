@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Envío de Reporte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center" data-redirect="{{ redirect_url }}">
+
+    <div class="bg-white rounded-lg shadow-xl p-8 text-center">
+        <svg class="mx-auto h-12 w-12 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 2v3m0-3a1 1 0 01-1-1h2a1 1 0 01-1 1zm3 5h-6a2 2 0 01-2-2V6a2 2 0 012-2h6a2 2 0 012 2v12a2 2 0 01-2 2z" />
+        </svg>
+        <h2 class="text-xl font-bold mt-4 text-gray-800">¿Estás seguro de enviar el reporte del mes?</h2>
+        <div class="mt-6 flex justify-center gap-4">
+            <button id="aceptarEnvio" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Aceptar
+            </button>
+            <button id="cancelarEnvio" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <div id="modalEnvioExitoso" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Envío Exitoso
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">
+                                    El reporte del mes ha sido enviado correctamente.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button id="cerrarModalExito" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Aceptar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const redirectUrl = document.body.dataset.redirect;
+
+    document.getElementById('aceptarEnvio').addEventListener('click', function() {
+        fetch("{% url 'correos:enviar_reporte' %}")
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('modalEnvioExitoso').classList.remove('hidden');
+
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 2500);
+            } else {
+                alert("Error al enviar el correo: " + data.error);
+                window.location.href = redirectUrl;
+            }
+        })
+        .catch(error => {
+            alert("Error de conexión al enviar el correo: " + error);
+            window.location.href = redirectUrl;
+        });
+    });
+
+    document.getElementById('cancelarEnvio').addEventListener('click', function() {
+        window.history.back();
+    });
+
+    document.getElementById('cerrarModalExito').addEventListener('click', function() {
+        window.history.back();
+    });
+</script>
+
+
+</body>
+</html>

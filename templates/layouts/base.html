@@ -1,0 +1,132 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectroSmart</title>
+    <link rel="icon" href="{% static 'images/icon.ico' %}" type="image/x-icon">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    {% tailwind_css %}
+
+    <style>
+        [x-cloak] { display: none !important; }
+        html, body { height: 100%; }
+
+        /* --- AJUSTES SELECT2 PARA TAILWIND --- */
+        .select2-container {
+            width: 100% !important;
+        }
+
+        /* Contenedor principal del select */
+        .select2-container--default .select2-selection--single {
+            background-color: #ffffff !important;
+            border: 1px solid #D1D5DB !important; /* border-gray-300 */
+            border-radius: 0.5rem !important;     /* rounded-lg */
+            height: 2.5rem !important;            /* h-10 */
+            display: flex !important;
+            align-items: center !important;
+            transition: border-color 0.2s;
+        }
+
+        /* Estado Focus */
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #3B82F6 !important; /* blue-500 */
+            outline: none !important;
+        }
+
+        /* Texto dentro del select */
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #374151 !important; /* text-gray-700 */
+            padding-left: 0.75rem !important;
+        }
+
+        /* Flecha del select */
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 2.5rem !important;
+            top: 0 !important;
+            right: 0.5rem !important;
+        }
+
+        /* Caja de búsqueda desplegada */
+        .select2-dropdown {
+            border: 1px solid #D1D5DB !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+            z-index: 9999 !important;
+        }
+    </style>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+    {% if user.is_authenticated %}
+        {% block sidebar %}
+            {% include 'layouts/sidebar.html' %}
+        {% endblock sidebar %}
+    {% endif %}
+
+    <div class="flex-1 flex flex-col {% if user.is_authenticated %}md:ml-64{% endif %}">
+        {% block navbar %}
+            {% include 'layouts/navbar.html' %}
+        {% endblock navbar %}
+
+        <main class="flex-1 overflow-auto px-4 pt-4">
+            {% block content %}
+            {% endblock content %}
+        </main>
+
+        <!-- 
+        {% include 'layouts/footer.html' %}
+        -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Inicializar Select2
+            $('.select2-enable').each(function() {
+                $(this).select2({
+                    placeholder: $(this).data('placeholder') || "Selecciona una opción",
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
+
+            // Toggle Sidebar Móvil
+            const sidebarToggle = document.getElementById('toggleSidebar');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) sidebar.classList.toggle('-translate-x-full');
+                });
+            }
+
+            // Configuración Global de Toastr
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "5000"
+            };
+
+            // Ejecutar toastr si Django envía la señal
+            {% if correo_enviado_hoy %}
+                toastr.success('✅ Recordatorios de pago enviados hoy.');
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

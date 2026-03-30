@@ -1,0 +1,74 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Título -->
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">🕵️ Panel de Actividades</h1>
+
+    <!-- Filtro por usuario -->
+    <form method="get" class="mb-6 max-w-md">
+        <label for="usuario" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por usuario:</label>
+        <select name="usuario" id="usuario" onchange="this.form.submit()" class="w-full select2-enable p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            <option value="">-- Todos los usuarios --</option>
+            {% for user in usuarios %}
+                <option value="{{ user.id }}" {% if filtro_usuario == user.id|stringformat:"s" %}selected{% endif %}>
+                    {{ user.get_full_name|default:user.username }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- Tabla de actividades -->
+    <div class="overflow-x-auto bg-white shadow rounded-lg">
+        <table class="min-w-full text-sm text-left text-gray-700">
+            <thead class="bg-gray-100 text-xs uppercase text-gray-600 border-b">
+                <tr>
+                    <th class="px-6 py-3">👤 Usuario</th>
+                    <th class="px-6 py-3">🎯 Rol</th>
+                    <th class="px-6 py-3">📝 Descripción</th>
+                    <th class="px-6 py-3">⏱️ Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for actividad in page_obj %}
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="px-6 py-3 font-medium">{{ actividad.usuario.get_full_name|default:actividad.usuario.username }}</td>
+                        <td class="px-6 py-3">{{ actividad.usuario.perfil.get_rol_display }}</td>
+                        <td class="px-6 py-3">{{ actividad.descripcion }}</td>
+                        <td class="px-6 py-3 text-gray-500 text-sm">{{ actividad.tiempo_relativo }} atrás</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay actividades registradas.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="mt-6 flex justify-center">
+        <nav class="inline-flex shadow-sm -space-x-px text-sm">
+            {% if page_obj.has_previous %}
+                <a href="?{% if filtro_usuario %}usuario={{ filtro_usuario }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-3 py-2 ml-0 leading-tight text-gray-600 bg-white border border-gray-300 rounded-l hover:bg-gray-100">Anterior</a>
+            {% else %}
+                <span class="px-3 py-2 ml-0 leading-tight text-gray-400 bg-gray-100 border border-gray-300 rounded-l">Anterior</span>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                    <span class="px-3 py-2 leading-tight text-white bg-blue-600 border border-blue-600">{{ num }}</span>
+                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                    <a href="?{% if filtro_usuario %}usuario={{ filtro_usuario }}&{% endif %}page={{ num }}" class="px-3 py-2 leading-tight text-gray-600 bg-white border border-gray-300 hover:bg-gray-100">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?{% if filtro_usuario %}usuario={{ filtro_usuario }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-3 py-2 leading-tight text-gray-600 bg-white border border-gray-300 rounded-r hover:bg-gray-100">Siguiente</a>
+            {% else %}
+                <span class="px-3 py-2 leading-tight text-gray-400 bg-gray-100 border border-gray-300 rounded-r">Siguiente</span>
+            {% endif %}
+        </nav>
+    </div>
+</div>
+{% endblock %}

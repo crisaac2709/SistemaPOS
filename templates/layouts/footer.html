@@ -1,0 +1,41 @@
+{% if user.is_authenticated %}
+<footer class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-8 px-6 mt-12">
+  <div class="container mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center">
+      <div class="mb-6 md:mb-0">
+        <h3 class="text-xl font-bold mb-2">ElectroSmart</h3>
+        <p class="text-blue-200 text-sm">Tecnología inteligente para tu hogar</p>
+      </div>
+      
+      <div class="flex space-x-6 mb-6 md:mb-0">
+        <a href="#" class="hover:text-blue-300 transition-colors">
+          <i class="fab fa-facebook-f text-lg"></i>
+        </a>
+        <a href="#" class="hover:text-blue-300 transition-colors">
+          <i class="fab fa-twitter text-lg"></i>
+        </a>
+        <a href="#" class="hover:text-blue-300 transition-colors">
+          <i class="fab fa-instagram text-lg"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/cristian-isaac-alvarez-o%C3%B1a-5883b9302/" target="_blank" class="hover:text-blue-300 transition-colors">
+          <i class="fab fa-linkedin-in text-lg"></i>
+        </a>
+      </div>
+    </div>
+    
+    <div class="border-t border-blue-500 pt-6 mt-6">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <p class="text-sm text-blue-200 mb-4 md:mb-0">
+          &copy; {% now "Y" %} ElectroSmart. Todos los derechos reservados.
+        </p>
+        
+        <div class="flex space-x-4">
+          <a href="#" class="text-sm hover:text-blue-300 transition-colors">Política de Privacidad</a>
+          <a href="#" class="text-sm hover:text-blue-300 transition-colors">Términos de Servicio</a>
+          <a href="#" class="text-sm hover:text-blue-300 transition-colors">Contacto</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+{% endif %}

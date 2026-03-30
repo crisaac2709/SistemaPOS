@@ -1,0 +1,105 @@
+{% extends 'layouts/base.html' %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto bg-white p-16">
+    <div class="flex justify-center mb-6">
+        <img src="https://c0.klipartz.com/pngpicture/231/159/sticker-png-compressor-pneumatics-customer-business-information-clientes-face-service-logo-monochrome-fictional-character.png" alt="Logo" class="h-12">
+    </div>
+    <h2 class="text-2xl font-bold mb-4 text-center">Creación de Cliente</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="grid gap-6 mb-6 lg:grid-cols-2">
+
+            <div>
+                <label for="{{form.nombres.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Nombres</label>
+                {{ form.nombres|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+                {% for error in form.nombres.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="{{form.apellidos.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Apellidos</label>
+                {{ form.apellidos|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+                {% for error in form.apellidos.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="{{form.dni.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Cédula</label>
+                {{ form.dni|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+                {% for error in form.dni.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="{{form.telefono.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Teléfono</label>
+                {{ form.telefono|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+                {% for error in form.telefono.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="mb-6">
+                <label for="{{form.fecha_nacimiento.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Fecha de Nacimiento</label>
+                {{ form.fecha_nacimiento|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 type:date" }}
+                {% for error in form.fecha_nacimiento.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="mb-6">
+                <label for="{{form.ciudad.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Ciudad</label>
+                {{ form.ciudad|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+                {% for error in form.ciudad.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <div class="mb-6 flex items-center">
+            {{ form.activo|add_class:"w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" }}
+            <label for="{{ form.activo.id_for_label }}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Activo
+            </label>
+        </div>
+
+        <div class="mb-6">
+            <label for="{{form.correo.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Correo Electrónico</label>
+            {{ form.correo|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            {% for error in form.correo.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="mb-6">
+            <label for="{{form.direccion.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Dirección</label>
+            {{ form.direccion|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            {% for error in form.direccion.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="mb-6">
+            <label for="{{form.imagen.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Imagen del Cliente</label>
+            {{ form.imagen|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            {% for error in form.imagen.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Crear Cliente</button>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'layouts/base.html' %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+
+<!-- component -->
+<!-- This is an example component -->
+<div class="max-w-2xl mx-auto bg-white p-16">
+    <div class="flex justify-center mb-6">
+        <img src="https://thumbs.dreamstime.com/b/conjunto-de-logotipos-esbozados-para-empresas-dibujo-vectorial-web-buy-aprender-tiempo-trabajo-personal-usuario-viajar-lista-229989151.jpg" alt="Logo" class="h-16">
+      </div>
+      <h2 class="text-2xl font-bold mb-4 text-center">Actualizar Datos del Proveedor</h2>
+
+	<form method="POST" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        <div class="grid gap-6 mb-6 lg:grid-cols-2">
+            <div class="mb-6">
+                <label for="{{form.nombre.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Nombre de la Empresa</label>
+                {{ form.nombre|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+
+            <div class="mb-6">
+                <label for="{{form.ruc.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">RUC</label>
+                {{ form.ruc|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+        </div>
+
+
+        <div class="mb-6">
+            <label for="{{form.correo.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Correo Electronico</label>
+            {{ form.correo|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+        </div>
+
+        <div class="grid gap-6 mb-6 lg:grid-cols-2">
+            <div class="mb-6">
+                <label for="{{form.telefono.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Telefono</label>
+                {{ form.telefono|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+
+            <div class="mb-6">
+                <label for="{{form.ciudad.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Ciudad</label>
+                {{ form.ciudad|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label for="{{form.direccion.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Direccion</label>
+            {{ form.direccion|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+        </div> 
+
+        <div class="mb-6">
+            <label for="{{form.imagen.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Imagen del Proveedor</label>
+            {{ form.imagen|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+        </div> 
+
+        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar cambios</button>
+
+    </form>
+
+</div>
+
+
+{% endblock %}

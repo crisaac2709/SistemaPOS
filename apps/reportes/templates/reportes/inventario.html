@@ -1,0 +1,161 @@
+{% extends 'layouts/base.html' %}
+{%load static%}
+{% block content %}
+<div class="p-6 max-w-7xl mx-auto">
+    <!-- Encabezado -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                Reporte Completo de Inventario
+            </h1>
+            <p class="text-gray-600 mt-1">Gestión y análisis del stock de productos</p>
+        </div>
+        <a href="{% url 'reportes:index' %}" class="flex items-center text-blue-600 hover:text-blue-800 mt-3 md:mt-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver a Reportes
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-6 border border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Filtrar Inventario</h2>
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label for="umbral" class="block text-sm font-medium text-gray-700 mb-1">Umbral stock bajo</label>
+                <div class="relative">
+                    <input type="number" name="umbral" id="umbral" value="{{ umbral }}" min="0" Required
+                           class="block w-full pl-4 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                </div>
+            </div>
+            
+            <div>
+                <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                <select name="categoria" id="categoria" class="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="0">Todas las categorías</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if categoria_id == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="marca" class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
+                <select name="marca" id="marca" class="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="0">Todas las marcas</option>
+                    {% for m in marcas %}
+                        <option value="{{ m.id }}" {% if marca_id == m.id %}selected{% endif %}>{{ m.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <button type="submit" class="w-full md:w-auto flex items-center justify-center px-6 py-2 border border-transparent rounded-lg shadow-sm text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Aplicar Filtros
+            </button>
+        </form>
+    </div>
+
+    <!-- Resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-amber-500">
+            <h3 class="text-sm font-medium text-gray-500 mb-1">Total Productos</h3>
+            <p class="text-2xl font-bold text-gray-800">{{ productos_inventario|length }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-red-500">
+            <h3 class="text-sm font-medium text-gray-500 mb-1">Productos con Stock Bajo</h3>
+            <p class="text-2xl font-bold text-gray-800">
+                {{ productos_bajo|length }}
+            </p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500">
+            <h3 class="text-sm font-medium text-gray-500 mb-1">Productos con Stock OK</h3>
+            <p class="text-2xl font-bold text-gray-800">
+                {{ productos_ok|length }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Tabla de inventario -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+        <div class="overflow-x-auto">
+            <table id="tabla-inventario" class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-amber-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">Producto</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">Marca</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">Categoría</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-amber-800 uppercase tracking-wider">Stock Actual</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-amber-800 uppercase tracking-wider">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for p in productos_inventario %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ forloop.counter }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-800 font-medium">{{ p.producto.nombre }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ p.producto.marca }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ p.producto.categoria }}</td>
+                        <td class="px-6 py-4 text-sm text-center font-medium {% if p.estado == 'BAJO' %}text-red-600{% else %}text-gray-900{% endif %}">{{ p.stock_actual }}</td>
+                        <td class="px-6 py-4 text-center">
+                            {% if p.estado == 'BAJO' %}
+                                <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    BAJO STOCK
+                                </span>
+                            {% else %}
+                                <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    STOCK OK
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No se encontraron productos con los filtros seleccionados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if productos_inventario %}
+    <!-- Botones de exportación -->
+    <div class="mt-6 flex gap-4">
+        <button onclick="exportarInventarioPDF()" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Exportar PDF
+        </button>
+
+        <button onclick="exportarInventarioCSV()" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16l4 4 4-4m-4-4v8" />
+            </svg>
+            Exportar CSV
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Librerías y script externo -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="{% static 'js/Generar_pdf/inventario_pdf.js' %}"></script>
+{% endblock %} 

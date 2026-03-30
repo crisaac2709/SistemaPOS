@@ -1,0 +1,68 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Ingreso de Movimientos de Stock{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
+
+  <input type="hidden" id="url-movimientos-stock" value="{% url 'productos:movimientos_stock' %}">
+
+  <h1 class="text-2xl font-semibold mb-6 text-gray-800">Ingreso de Movimientos de Stock</h1>
+
+
+  <form method="post" id="form-stock" class="space-y-4">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <table class="min-w-full border border-gray-200 rounded-md overflow-hidden">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="py-3 px-4 text-left text-gray-700 font-medium">Producto</th>
+          <th class="py-3 px-4 text-left text-gray-700 font-medium">Cantidad</th>
+          <th class="py-3 px-4 text-left text-gray-700 font-medium">Motivo</th>
+          <th class="py-3 px-4 text-center text-gray-700 font-medium">Acción</th>
+        </tr>
+      </thead>
+        <tbody id="tbody-stock">
+            {% for form in formset %}
+            <tr class="form-row border-t border-gray-200">
+                <td class="py-2 px-4">
+                {{ form.producto|add_class:"w-full rounded border-gray-300" }}
+                </td>
+                <td class="py-2 px-4">
+                {{ form.cantidad|add_class:"w-full rounded border-gray-300"|attr:"min:1" }}
+                </td>
+                <td class="py-2 px-4">
+                {{ form.motivo|add_class:"w-full rounded border-gray-300" }}
+                </td>
+                <td class="py-2 px-4 text-center">
+                <button type="button" class="eliminar-fila text-red-500 hover:text-red-700" title="Eliminar fila">
+                    &times;
+                </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+    <div class="flex items-center justify-between mt-4">
+      <button type="button" id="agregar-fila" 
+              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition">
+        + Agregar producto
+      </button>
+
+      <button type="submit"
+              class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded transition">
+        Registrar movimientos
+      </button>
+    </div>
+  </form>
+</div>
+
+<script src="{% static 'js/productos/manejo_formset_stock.js' %}"></script>
+<script src="{% static 'js/productos/ingresar_unidades.js' %}"></script>
+
+{% endblock %}

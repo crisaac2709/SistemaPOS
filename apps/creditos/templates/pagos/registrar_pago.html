@@ -1,0 +1,117 @@
+{% extends 'layouts/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white shadow-lg rounded-xl overflow-hidden mt-8 mb-10 border border-gray-100">
+
+    <!-- Encabezado -->
+    <div class="bg-blue-600 px-6 py-4">
+        <h1 class="text-2xl font-bold text-white">💳 Registrar Pago</h1>
+        <p class="text-blue-100 text-sm mt-1">Complete los detalles del pago</p>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="p-6">
+        <!-- Información del cliente -->
+        <div class="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-100">
+            <h2 class="text-lg font-semibold text-blue-800 mb-3 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                </svg>
+                Información del Cliente
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-xs font-medium text-blue-600 uppercase tracking-wider">Cliente</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ credito.cliente }}</p>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-blue-600 uppercase tracking-wider">Cédula</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ credito.cliente.dni }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+
+            <div class="space-y-4">
+                <!-- Monto -->
+                <div>
+                    <label for="{{ form.monto.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Monto a Pagar <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
+                        {{ form.monto|add_class:"block w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"|attr:"min:1"|attr:"step:0.01" }}
+                    </div>
+                </div>
+
+                <!-- Cuota -->
+                <div>
+                    <label for="{{ form.cuota.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Número de Cuota <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.cuota|add_class:"block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" }}
+                </div>
+
+                <!-- Método de Pago -->
+                <div>
+                    <label for="{{ form.metodo_pago.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Método de Pago <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        {{ form.metodo_pago|add_class:"block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" }}
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                                <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comentarios -->
+                <div>
+                    <label for="{{ form.comentarios.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Comentarios (Opcional)
+                    </label>
+                    {{ form.comentarios|add_class:"block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"|attr:"rows:3"|attr:"placeholder:Ej: Pago realizado en efectivo..." }}
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                <a href="{% url 'creditos:detalle_credito' credito.pk %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Cancelar
+                </a>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    Registrar Pago
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- SweetAlert para mensajes -->
+{% if messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "error" %}error{% else %}success{% endif %}',
+                title: '{{ message|escapejs }}',
+                confirmButtonText: 'Aceptar'
+            });
+        {% endfor %}
+    });
+</script>
+{% endif %}
+{% endblock %}
