@@ -45,7 +45,6 @@ class ListarProductos(LoginRequiredMixin, ListView):
         return queryset
 
     
-
 class DetalleProducto(LoginRequiredMixin, DetailView):
     model = Producto
     template_name = 'productos/detalle.html'
@@ -70,6 +69,17 @@ class EliminarProducto(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('productos:listar_productos')
 
 
+@login_required
+def buscar_productos(request):
+    query = request.GET.get("query", "")
+    productos = Producto.objects.filter(nombre__icontains = query)
+
+    data = [
+        {"id": producto.pk, "nombre": producto.nombre}
+        for producto in productos
+    ]
+
+    return JsonResponse(data, safe=False)
 
 @login_required
 def productos_bajo_stock(request):
@@ -138,7 +148,7 @@ def movimientos_stock(request):
 
 @login_required
 def ingresar_unidades(request):
-    StockFormSet = modelformset_factory(Stock, form=StockForm, extra=1, can_delete=False)
+    StockFormSet = modelformset_factory(Stock, form=StockForm, extra=0, can_delete=False)
 
     if request.method == 'POST':
         formset = StockFormSet(request.POST)

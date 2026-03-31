@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CrearProductoView, ListarProductos, DetalleProducto, ActualizarProducto, EliminarProducto, ingresar_unidades, movimientos_stock, productos_bajo_stock
+from .views import CrearProductoView, ListarProductos, DetalleProducto, ActualizarProducto, EliminarProducto, buscar_productos, ingresar_unidades, movimientos_stock, productos_bajo_stock
 
 app_name = 'productos'
 
@@ -12,5 +12,6 @@ urlpatterns = [
     path('stock/movimientos/', movimientos_stock, name='movimientos_stock'),
     path('stock/ingresar-unidades/', ingresar_unidades, name='ingresar_unidades'),
     path('api/bajo-stock/', productos_bajo_stock, name="productos_bajo_stock"),
+    path('buscar-productos/', buscar_productos, name='buscar_productos'),
 ]
 

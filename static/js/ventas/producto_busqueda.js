@@ -1,73 +1,166 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('busqueda_producto');
-    const lista = document.getElementById('resultados_producto');
+document.addEventListener("DOMContentLoaded", function () {
+
+    const urlBuscar = document.getElementById("url-buscar-productos").value;
+    const contenedor = document.getElementById("Contenedor-formularios");
     const formTotal = document.getElementById("id_detalles-TOTAL_FORMS");
 
-    input.addEventListener('input', async () => {
-        const query = input.value.trim();
-        if (query.length >= 2) {
-            const response = await fetch(`/ventas/buscar-productos/?q=${encodeURIComponent(query)}`);
-            const data = await response.json();
-            lista.innerHTML = '';
-            lista.classList.remove('hidden');
+    new TomSelect("#buscar-producto", {
+        valueField: "id",
+        labelField: "nombre",
+        searchField: "nombre",
 
-            data.forEach(producto => {
-                const li = document.createElement('li');
-                li.textContent = `${producto.nombre} - $${producto.precio} - Stock: ${producto.stock_actual} unidades`;
-                li.classList.add("cursor-pointer", "px-4", "py-2", "hover:bg-indigo-100");
+        load: function(query, callback) {
+            if (!query.length) return callback();
 
-                li.addEventListener('click', () => {
-                    const formIndex = parseInt(formTotal.value) - 1;
+            fetch(`${urlBuscar}?q=${query}`)
+                .then(res => res.json())
+                .then(data => callback(data))
+                .catch(() => callback());
+        },
 
-                    const select = document.getElementById(`id_detalles-${formIndex}-producto`);
-                    const precio = document.getElementById(`id_detalles-${formIndex}-precio_unitario`);
-                    const cantidad = document.getElementById(`id_detalles-${formIndex}-cantidad`);
-                    const subtotal = document.getElementById(`subtotal-detalles-${formIndex}`)
+        render: {
+            option: function(item, escape) {
+                return `
+                    <div class="p-2">
+                        <div class="font-semibold text-gray-800">
+                            ${escape(item.nombre)}
+                        </div>
+                        <div class="text-sm text-gray-500 flex justify-between">
+                            <span>$${item.precio}</span>
+                            <span>Stock: ${item.stock_actual}</span>
+                        </div>
+                    </div>
+                `;
+            },
 
-                    // Asegura que exista <select> y agrega la opción visible
-                    if (select) {
-                        select.innerHTML = ''; // limpia opciones anteriores
-                        const option = document.createElement('option');
-                        option.value = producto.id;
-                        option.textContent = producto.nombre;
-                        select.appendChild(option);
-                        select.value = producto.id;
-                    }
+            item: function(item, escape) {
+                return `
+                    <div>
+                        ${escape(item.nombre)} - $${item.precio}
+                    </div>
+                `;
+            }
+        },
 
-                    const metodoPago = document.getElementById('id_metodo_pago');
-                    const metodoSeleccionado = metodoPago.options[metodoPago.selectedIndex].text;
-                    console.log(metodoSeleccionado)
-                    if (metodoPago && metodoSeleccionado.trim() === 'Credito') {
-                        actualizarPreciosCredito(); 
-                    }
+        onChange: function(value) {
+            if (!value) return;
 
-                    if (precio) precio.value = producto.precio;
-                    if (cantidad) {
-                        cantidad.value = 1
-                        cantidad.setAttribute('data-stock', producto.stock_actual);
-                        validarStockInput(cantidad, producto.nombre);
-                    };
-                    if (subtotal) {
-                        const total = parseFloat(precio.value || 0) * parseFloat(cantidad.value || 0);
-                        subtotal.textContent = `$${total.toFixed(2)}`;
-                    }
-                    console.log(subtotal);
-
-                    actualizarTotales();
-
-                    input.value = '';
-                    lista.classList.add('hidden');
-                });
-
-                lista.appendChild(li);
-            });
-        } else {
-            lista.innerHTML = '';
-            lista.classList.add('hidden');
+            const producto = this.options[value];
+            agregarProducto(producto);
+            this.clear();
         }
     });
-});
 
+    // ==============================
+    // AGREGAR PRODUCTO
+    // ==============================
+    function agregarProducto(producto) {
+        const index = parseInt(formTotal.value);
+
+        // evitar duplicados
+        if (productoYaExiste(producto.id)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Producto duplicado',
+                text: 'Este producto ya está en la lista',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            return;
+        }
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td class="px-4 py-3">
+                <input type="hidden" name="detalles-${index}-producto" value="${producto.id}">
+                <input type="text" value="${producto.nombre}" 
+                    class="w-full p-2 border-gray-300 rounded-md bg-gray-100" readonly>
+            </td>
+
+            <td class="px-4 py-3">
+                <input type="number" name="detalles-${index}-cantidad" 
+                    id="id_detalles-${index}-cantidad"
+                    value="1" min="1"
+                    data-stock="${producto.stock_actual}"
+                    class="w-full p-2 border-gray-300 rounded-md text-center">
+            </td>
+
+            <td class="px-4 py-3">
+                <input type="number" name="detalles-${index}-precio_unitario" 
+                    id="id_detalles-${index}-precio_unitario"
+                    value="${producto.precio}" step="any"
+                    class="w-full p-2 border-gray-300 rounded-md text-center" readonly>
+            </td>
+
+            <td class="px-4 py-3 text-center">
+                <span id="subtotal-detalles-${index}">$0.00</span>
+            </td>
+
+            <td class="px-4 py-3 text-center">
+                <button type="button" class="eliminar-fila text-red-600 hover:text-red-900">
+                    ❌
+                </button>
+            </td>
+        `;
+
+        contenedor.appendChild(row);
+        formTotal.value = index + 1;
+
+        const cantidad = row.querySelector(`#id_detalles-${index}-cantidad`);
+        const precio = row.querySelector(`#id_detalles-${index}-precio_unitario`);
+        const subtotal = row.querySelector(`#subtotal-detalles-${index}`);
+
+        const total = parseFloat(precio.value) * parseFloat(cantidad.value);
+        subtotal.textContent = `$${total.toFixed(2)}`;
+
+        cantidad.addEventListener("input", () => {
+            validarStockInput(cantidad, producto.nombre);
+            actualizarTotales();
+        });
+
+        actualizarTotales();
+    }
+
+    // ==============================
+    // ELIMINAR
+    // ==============================
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.eliminar-fila')) {
+            e.target.closest('tr').remove();
+            reindexarForms();
+            actualizarTotales();
+        }
+    });
+
+    // ==============================
+    // REINDEXAR
+    // ==============================
+    function reindexarForms() {
+        const rows = document.querySelectorAll("#Contenedor-formularios tr");
+
+        rows.forEach((row, index) => {
+            row.querySelectorAll("input").forEach(input => {
+                if (input.name) input.name = input.name.replace(/detalles-\d+-/, `detalles-${index}-`);
+                if (input.id) input.id = input.id.replace(/detalles-\d+-/, `detalles-${index}-`);
+            });
+
+            const subtotal = row.querySelector("span");
+            if (subtotal) subtotal.id = `subtotal-detalles-${index}`;
+        });
+
+        formTotal.value = rows.length;
+    }
+
+    // ==============================
+    // DUPLICADOS
+    // ==============================
+    function productoYaExiste(id) {
+        const inputs = document.querySelectorAll('input[name$="-producto"]');
+        return Array.from(inputs).some(input => input.value == id);
+    }
+
+});
 
 
 // Función para validar

@@ -7,4 +7,4 @@ class VentaForm(forms.ModelForm):
         model = Venta
         fields = ['cliente', 'metodo_pago']
 
-DetalleVentaFormSet = inlineformset_factory(Venta, DetalleVenta, fields = ['producto', 'cantidad', 'precio_unitario'], extra=1, can_delete=True)
+DetalleVentaFormSet = inlineformset_factory(Venta, DetalleVenta, fields = ['producto', 'cantidad', 'precio_unitario'], extra=0, can_delete=False)
