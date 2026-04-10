@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenith | Gestión Inteligente de Ventas y Créditos para PYMES</title>
+    
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo"><a id="zenith" href="{% url 'home' %}">Zen<span>ith</span></a></div>
+            <ul class="nav-links">
+                <li><a href="#features">Funciones</a></li>
+                <li><a href="#pricing">Precio</a></li>
+                <li><a href="{% url 'usuarios:login' %}" class="btn-secondary">Iniciar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container hero-content">
+            <h1>Olvida el cuaderno de fiados y <span class="highlight">toma el control total</span> de tu negocio.</h1>
+            <p>La plataforma moderna y fácil de usar que integra ventas, inventario y seguimiento real de créditos pequeños. Diseñada específicamente para el ritmo de las PYMES.</p>
+            <div class="cta-group">
+                <a href="#pricing" class="btn-primary">Comenzar Ahora</a>
+                <a href="#features" class="btn-text">Descubrir Funciones ↓</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="features">
+        <div class="container">
+            <p class="section-subtitle">Lo que Zenith hace por ti</p>
+            <h2 class="section-title">Todo lo que necesitas en un solo lugar</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">💰</div>
+                    <h3>Punto de Venta Rápido</h3>
+                    <p>Registra ventas en efectivo o a crédito en segundos. Interfaz optimizada para agilizar la atención.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📝</div>
+                    <h3>Gestión de Créditos</h3>
+                    <p>Controla quién te debe, cuánto y cuándo deben pagar. Historial detallado de abonos y saldos por cliente.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📦</div>
+                    <h3>Inventario en Tiempo Real</h3>
+                    <p>Actualización automática con cada venta. Recibe alertas de stock bajo y evita perder ventas.</p>
+                </div>
+                <!---
+                <div class="feature-card">
+                    <div class="icon">📈</div>
+                    <h3>Reportes Sencillos</h3>
+                    <p>Visualiza tus ganancias diarias, los productos más vendidos y el estado general de tus cuentas por cobrar.</p>
+                </div>
+                -->
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <p class="section-subtitle light">Precio Transparente</p>
+            <h2 class="section-title light">Un solo plan, potencia ilimitada</h2>
+            
+            <div class="price-card">
+                <span class="plan-name">Plan Crecimiento</span>
+                <div class="price">$20.00<span>/mes</span></div>
+                <p class="price-desc">Sin contratos, cancela cuando quieras.</p>
+                <div class="divider"></div>
+                <ul>
+                    <li>✓ Usuarios ilimitados</li>
+                    <li>✓ Clientes y Proveedores ilimitados</li>
+                    <li>✓ Gestión de Créditos y Abonos</li>
+                    <li>✓ Control de Inventario Completo</li>
+                    <li>✓ Reportes e Historiales</li>
+                    <li>✓ Soporte Técnico Premium</li>
+                </ul>
+                <button class="btn-primary btn-block"><a id="registro" href="{% url 'usuarios:registro_administrador' %}">Crear mi Cuenta</a></button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p id="footer-copy"></p>
+            <p class="django-tag">Potenciado con Django</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

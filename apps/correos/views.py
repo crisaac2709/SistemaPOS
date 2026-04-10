@@ -12,15 +12,13 @@ def confirmacion_envio_recordatorios(request):
 def enviar_recordatorio_pago(request):
     usuario = request.user
     try:
-        enviar_recordatorios_pago()
+        enviar_recordatorios_pago(request.user.empresa)
 
-        if usuario.perfil.rol == "ADMIN":
+        if usuario.rol.nombre == "Administrador":
             redireccion_url = reverse('home')
         else:
             redireccion_url = reverse('usuarios:empleado_home')
-        
-        print(redireccion_url)
-        
+                
         return JsonResponse({
                 'success': True, 
                 'redirect_url': redireccion_url

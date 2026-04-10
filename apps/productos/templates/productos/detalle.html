@@ -1,85 +1,117 @@
 {% extends 'layouts/base.html' %}
 
 {% block content %}
-<body class="bg-gray-100">
+<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+        
+        <nav class="flex mb-8 text-sm font-medium text-slate-500">
+            <ol class="flex items-center space-x-2">
+                <li><a href="{% url 'productos:listar_productos' %}" class="hover:text-emerald-600 transition-colors">Inventario</a></li>
+                <li class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+                    <span class="text-slate-800">Ficha de Producto</span>
+                </li>
+            </ol>
+        </nav>
 
-<div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg mt-10 bg-white0">
-    <!-- Título del producto -->
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-black mb-6">{{ producto.nombre }}</h1>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Imagen del producto -->
-        <div class="flex justify-center items-center">
-            {% if producto.imagen %}
-                <img style="height: 500px;" src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="rounded-lg shadow-md w-full h-auto object-cover">
-            {% else %}
-                <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
-                    Sin imagen
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="aspect-square bg-slate-100 flex items-center justify-center overflow-hidden">
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="text-center p-8">
+                                <svg class="w-20 h-20 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <p class="text-sm text-slate-400 font-medium">Sin imagen disponible</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="p-6 border-t border-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Estado</span>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold {% if producto.activo %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ producto.activo|yesno:"Disponible para venta,Agotado / Inactivo" }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="{% url 'productos:actualizar_producto' producto.id %}" class="flex items-center justify-center px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition-all">
+                                Editar
+                            </a>
+                            <a href="{% url 'productos:eliminar_producto' producto.id %}" class="flex items-center justify-center px-4 py-2 border border-slate-200 text-slate-600 text-sm font-bold rounded-lg hover:bg-slate-50 transition-all">
+                                Eliminar
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            {% endif %}
+
+                <div class="bg-emerald-900 rounded-2xl p-6 text-white shadow-lg shadow-emerald-100">
+                    <div class="flex items-center mb-4">
+                        <div class="p-2 bg-white/10 rounded-lg mr-3">
+                            <svg class="w-5 h-5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-emerald-200">Propiedad de</h4>
+                    </div>
+                    <p class="text-lg font-bold">{{ producto.empresa.razon_social }}</p>
+                    <p class="text-xs text-emerald-400 mt-1 italic">Este producto es gestionado exclusivamente por su empresa.</p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8 space-y-6">
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                        <div>
+                            <span class="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-md mb-3 uppercase tracking-wide">
+                                {{ producto.categoria }}
+                            </span>
+                            <h1 class="text-3xl font-extrabold text-slate-900 mb-2">{{ producto.nombre }}</h1>
+                            <p class="text-slate-500 font-medium">Marca: <span class="text-slate-800">{{ producto.marca }}</span></p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-right">
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-1">Precio de Venta</p>
+                            <p class="text-4xl font-black text-emerald-600">${{ producto.precio|floatformat:2 }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-slate-100">
+                        <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Descripción del Producto</h4>
+                        <p class="text-slate-600 leading-relaxed text-lg italic">
+                            "{{ producto.descripcion|default:"No se ha proporcionado una descripción detallada para este producto." }}"
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-8 py-4 bg-slate-50 border-b border-slate-100">
+                        <h3 class="font-bold text-slate-700 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                            Análisis Financiero
+                        </h3>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                <p class="text-xs font-bold text-slate-400 uppercase mb-2">Costo de Adquisición</p>
+                                <p class="text-2xl font-bold text-slate-700">${{ producto.costo|floatformat:2 }}</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                                <p class="text-xs font-bold text-emerald-600 uppercase mb-2">Ganancia Bruta</p>
+                                <p class="text-2xl font-bold text-emerald-700">
+                                    ${{ producto.utlidad }}
+                                </p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-800 border border-slate-700 text-white">
+                                <p class="text-xs font-bold text-slate-400 uppercase mb-2 text-center text-white">Distribuidor</p>
+                                <p class="text-lg font-bold text-center truncate">{{ producto.proveedor|default:"Directo" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-
-        <!-- Detalles del producto -->
-        <div class="space-y-6">
-            <!-- Descripción -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Descripción</h2>
-                <p class="text-gray-900 dark:text-gray-600">{{ producto.descripcion }}</p>
-            </div>
-
-            <!-- Marca -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Marca</h2>
-                <p class="text-gray-900 dark:text-gray-600">{{ producto.marca }}</p>
-            </div>
-
-            <!-- Categoría -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Categoría</h2>
-                <p class="text-gray-900 dark:text-gray-600">{{ producto.categoria }}</p>
-            </div>
-
-            <!-- Proveedor -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Proveedor</h2>
-                <p class="text-gray-900 dark:text-gray-600">{{ producto.proveedor }}</p>
-            </div>
-
-            <!-- Costo -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Costo</h2>
-                <p class="text-gray-900 dark:text-gray-600">${{ producto.costo }}</p>
-            </div>
-
-            <!-- Precio -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Precio</h2>
-                <p class="text-gray-900 dark:text-gray-600">${{ producto.precio }}</p>
-            </div>
-
-            <!-- Stock -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Stock</h2>
-                <p class="text-gray-900 dark:text-gray-600">{{ producto.stock_actual }} unidades disponibles</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Botones de acciones -->
-    <div class="mt-8 flex space-x-4">
-        <!-- Botón Editar -->
-        <a href="{% url 'productos:actualizar_producto' producto.pk %}"
-           class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-            Editar
-        </a>
-
-        <!-- Botón Eliminar -->
-        <a href="{% url 'productos:eliminar_producto' producto.pk %}"
-           class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
-            Eliminar
-        </a>
     </div>
 </div>
-
-</body>
 {% endblock %}

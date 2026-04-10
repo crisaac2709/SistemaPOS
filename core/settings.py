@@ -27,13 +27,13 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'apps.usuarios',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'apps.usuarios',
     'apps.creditos',
     'apps.productos',
     'apps.proveedores',
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'apps.clientes',
     'apps.correos',
     'apps.reportes',
+    'apps.empresas',
     'tailwind',
     'theme',
     'widget_tweaks',
@@ -91,7 +92,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'apps.correos.context_processors.estado_envio_correo_context',
                 'django.contrib.messages.context_processors.messages',
-                'apps.usuarios.context_processors.perfil_contexto',
             ],
         },
     },
@@ -164,8 +164,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Redirecciones de login
-LOGIN_REDIRECT_URL = 'usuarios:redirigir_rol'
-LOGIN_URL = 'usuarios:login'  
+#LOGIN_REDIRECT_URL = 'usuarios:redirigir_rol'
+#LOGIN_URL = 'usuarios:login'  
 
 
 # Tailwind
@@ -177,7 +177,8 @@ TAILWIND_APP_NAME = 'theme'
 
 NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"  
 
-
+# User Model
+AUTH_USER_MODEL = "usuarios.CustomUser"
 
 # Correo
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

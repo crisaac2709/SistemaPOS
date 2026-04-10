@@ -1,5 +1,6 @@
 from django.db import models
 from apps.clientes.models import Ciudad
+from apps.empresas.models import Empresa
 
 # Create your models here.
 class Proveedor(models.Model):
@@ -10,7 +11,10 @@ class Proveedor(models.Model):
     ciudad = models.ForeignKey(Ciudad, on_delete=models.CASCADE)
     ruc = models.CharField(max_length=13, unique=True, null=False)
     imagen = models.ImageField(upload_to='proveedores/')
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.nombre}'
+    
+    
     

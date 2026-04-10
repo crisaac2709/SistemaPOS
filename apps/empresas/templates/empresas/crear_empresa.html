@@ -1,0 +1,124 @@
+{% extends 'layouts/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-8 border-b border-slate-200 pb-6">
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Configuración de Empresa</h1>
+            <p class="text-slate-600 mt-2">Completa la información legal y los datos para facturación electrónica (SRI).</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="bg-white shadow-sm ring-1 ring-slate-200 rounded-xl p-6">
+                <h2 class="text-lg font-bold text-indigo-600 mb-6 flex items-center">
+                    <span class="bg-indigo-100 text-indigo-600 rounded-full h-6 w-6 flex items-center justify-center mr-2 text-xs">1</span>
+                    Datos de Identidad
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-slate-700">{{ form.razon_social.label }}</label>
+                        {{ form.razon_social }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">{{ form.nombre_comercial.label }}</label>
+                        {{ form.nombre_comercial }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">{{ form.ruc.label }}</label>
+                        {{ form.ruc }}
+                        {% if form.ruc.errors %}<p class="text-xs text-red-500 mt-1">{{ form.ruc.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-slate-700">{{ form.direccion.label }}</label>
+                        {{ form.direccion }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">{{ form.telefono.label }}</label>
+                        {{ form.telefono }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">{{ form.logo.label }}</label>
+                        {{ form.logo }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-sm ring-1 ring-slate-200 rounded-xl p-6 border-l-4 border-amber-400">
+                <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                    <span class="bg-amber-100 text-amber-600 rounded-full h-6 w-6 flex items-center justify-center mr-2 text-xs">2</span>
+                    Firma Electrónica y SRI
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">{{ form.archivo_p12.label }}</label>
+                        {{ form.archivo_p12 }}
+                        {% if form.archivo_p12.errors %}<p class="text-xs text-red-500 mt-1">{{ form.archivo_p12.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">{{ form.password_p12_encriptada.label }}</label>
+                        {{ form.password_p12_encriptada }}
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 md:col-span-2">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700">{{ form.ambiente_sri.label }}</label>
+                            {{ form.ambiente_sri }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700">Cod. Establec.</label>
+                            {{ form.cod_establecimiento }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700">Punto Emisión</label>
+                            {{ form.cod_punto_emision }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-sm ring-1 ring-slate-200 rounded-xl p-6">
+                <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                    <span class="bg-indigo-100 text-indigo-600 rounded-full h-6 w-6 flex items-center justify-center mr-2 text-xs">3</span>
+                    Notificaciones de Factura
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">{{ form.correo.label }}</label>
+                        {{ form.correo }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Password Correo (SMTP)</label>
+                        {{ form.password_correo }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <button type="button" class="px-6 py-3 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50">
+                    <a href="{% url 'home' %}">Cancelar</a>
+                </button>
+                <button type="submit" class="px-10 py-3 bg-indigo-600 rounded-lg text-sm font-bold text-white shadow-lg hover:bg-indigo-700 transition-all transform active:scale-95">
+                    Guardar Empresa
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

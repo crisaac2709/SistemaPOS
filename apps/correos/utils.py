@@ -295,19 +295,19 @@ def generar_mensaje_html(cliente, cuotas_pendientes, monto):
     return mensaje_html
 
 
-def enviar_recordatorios_pago():
+def enviar_recordatorios_pago(empresa):
     hoy = date.today()
     manana = hoy + timedelta(days=1)
 
     # Filtrar todos los créditos con deuda pendiente, sin importar el estado
-    creditos = Credito.objects.all()
+    creditos = Credito.objects.filter(empresa = empresa)
 
     for credito in creditos:
         if credito.deuda_pendiente <= 0:
             continue  # No debe nada, lo saltamos
 
         fechas_pago = credito.generar_fechas_pago()
-        pagos_realizados = Pago.objects.filter(credito=credito).values_list('cuota', flat=True)
+        pagos_realizados = Pago.objects.filter(empresa=empresa).values_list('cuota', flat=True)
 
         cuotas_pendientes = []
 
@@ -336,7 +336,7 @@ def enviar_recordatorios_pago():
                 send_mail(
                     subject=asunto,
                     message='',  
-                    from_email=settings.EMAIL_HOST_USER,
+                    from_email=empresa.correo,
                     recipient_list=[correo],
                     fail_silently=False,
                     html_message=mensaje_html,  

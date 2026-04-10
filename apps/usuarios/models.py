@@ -1,38 +1,37 @@
 # models.py
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.exceptions import ValidationError
+from apps.empresas.models import Empresa
+from django.conf import settings
+from django.utils.timesince import timesince
 
-ROLES = (
-        ('ADMIN', 'Administrador'),
-        ('EMPLEADO', 'Empleado'),
-    )
 
-class Perfil(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
-    foto_perfil = models.ImageField(upload_to="perfiles/", blank=True, null=True)
-    cedula = models.CharField(max_length=10, unique=True, null=True, blank=True)
-    telefono = models.CharField(max_length=10, null=True)
-    rol = models.CharField(max_length=20, choices=ROLES, default='EMPLEADO')  
-
+class Rol(models.Model):
+    nombre = models.CharField(max_length=100, unique=True, null=False)
 
     def __str__(self):
-        return f'{self.usuario} -- Cedula: {self.cedula}'
+        return f'{self.nombre}'
     
-    def clean(self):
-        if self.pk is not None:
-            original = Perfil.objects.get(pk=self.pk)
-            if self.rol != original.rol:
-                raise ValidationError("No está permitido cambiar el rol del perfil.")
-            
+    
+class CustomUser(AbstractUser):
+    cedula = models.CharField(max_length=10, unique=True, null=True, blank=True)
+    telefono = models.CharField(max_length=10, null=True, blank=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name="usuarios", null=True, blank=True)
+    rol = models.ForeignKey(Rol, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.username} - {self.empresa}'
+
+
 
 class Actividad(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     descripcion = models.CharField(max_length=255)
     fecha = models.DateTimeField(auto_now_add=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     
     def tiempo_relativo(self):
-        from django.utils.timesince import timesince
         return timesince(self.fecha).split(',')[0]  
     
     def __str__(self):

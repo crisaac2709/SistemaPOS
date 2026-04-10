@@ -1,105 +1,162 @@
 {% extends 'layouts/base.html' %}
-
 {% load widget_tweaks %}
 
 {% block content %}
+<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-10 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-extrabold tracking-tight">Registro de Cliente</h2>
+                        <p class="mt-2 text-blue-100 text-sm">Complete la información para dar de alta al cliente en el sistema.</p>
+                    </div>
+                    <div class="hidden sm:block">
+                        <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<div class="max-w-2xl mx-auto bg-white p-16">
-    <div class="flex justify-center mb-6">
-        <img src="https://c0.klipartz.com/pngpicture/231/159/sticker-png-compressor-pneumatics-customer-business-information-clientes-face-service-logo-monochrome-fictional-character.png" alt="Logo" class="h-12">
+            <form method="POST" enctype="multipart/form-data" class="p-8 space-y-8">
+                {% csrf_token %}
+
+                <input type="hidden" id="provincias" value="{% url 'clientes:cargar_provincias' %}">
+                <input type="hidden" id="ciudades" value="{% url 'clientes:cargar_ciudades' %}">
+
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-2 mb-6 flex items-center">
+                        <span class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-3 text-sm font-bold">01</span>
+                        Información Personal
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Nombres</label>
+                            {{ form.nombres|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" }}
+                            {% if form.nombres.errors %}<p class="text-red-500 text-xs mt-1">{{ form.nombres.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Apellidos</label>
+                            {{ form.apellidos|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" }}
+                            {% if form.apellidos.errors %}<p class="text-red-500 text-xs mt-1">{{ form.apellidos.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Cédula (DNI)</label>
+                            {{ form.dni|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" }}
+                            {% if form.dni.errors %}<p class="text-red-500 text-xs mt-1">{{ form.dni.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Fecha de Nacimiento</label>
+                            {{ form.fecha_nacimiento|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" }}
+                            {% if form.fecha_nacimiento.errors %}<p class="text-red-500 text-xs mt-1">{{ form.fecha_nacimiento.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-2 mb-6 flex items-center">
+                        <span class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-3 text-sm font-bold">02</span>
+                        Ubicación y Contacto
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">País</label>
+                            {{ form.pais|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 focus:bg-white outline-none"|attr:"id:id_pais" }}
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Provincia</label>
+                            {{ form.provincia|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 focus:bg-white outline-none"|attr:"id_provincia" }}
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Ciudad</label>
+                            {{ form.ciudad|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 focus:bg-white outline-none"|attr:"id_ciudad" }}
+                            {% if form.ciudad.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ciudad.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Correo Electrónico</label>
+                            {{ form.correo|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" }}
+                            {% if form.correo.errors %}<p class="text-red-500 text-xs mt-1">{{ form.correo.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Teléfono</label>
+                            {{ form.telefono|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" }}
+                            {% if form.telefono.errors %}<p class="text-red-500 text-xs mt-1">{{ form.telefono.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="md:col-span-2 space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Dirección Exacta</label>
+                            {{ form.direccion|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"|attr:"rows:2" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800">Estado del Cliente</h4>
+                        <p class="text-xs text-slate-500">Determine si el cliente está habilitado para transacciones.</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="relative inline-flex items-center cursor-pointer">
+                            {{ form.activo|add_class:"sr-only peer"|attr:"id:check_activo" }}
+                            <label for="check_activo" class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></label>
+                            <span class="ml-3 text-sm font-medium text-slate-700">Activo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-slate-100">
+                    <a href="{% url 'clientes:listar_clientes' %}" class="px-6 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors">Cancelar</a>
+                    <button type="submit" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-all focus:ring-4 focus:ring-blue-300">
+                        Guardar Cliente
+                    </button>
+                </div>
+
+            </form>
+        </div>
     </div>
-    <h2 class="text-2xl font-bold mb-4 text-center">Creación de Cliente</h2>
-
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <div class="grid gap-6 mb-6 lg:grid-cols-2">
-
-            <div>
-                <label for="{{form.nombres.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Nombres</label>
-                {{ form.nombres|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.nombres.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div>
-                <label for="{{form.apellidos.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Apellidos</label>
-                {{ form.apellidos|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.apellidos.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div>
-                <label for="{{form.dni.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Cédula</label>
-                {{ form.dni|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.dni.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div>
-                <label for="{{form.telefono.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Teléfono</label>
-                {{ form.telefono|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.telefono.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div class="mb-6">
-                <label for="{{form.fecha_nacimiento.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Fecha de Nacimiento</label>
-                {{ form.fecha_nacimiento|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 type:date" }}
-                {% for error in form.fecha_nacimiento.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div class="mb-6">
-                <label for="{{form.ciudad.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Ciudad</label>
-                {{ form.ciudad|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.ciudad.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-        </div>
-
-        <div class="mb-6 flex items-center">
-            {{ form.activo|add_class:"w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" }}
-            <label for="{{ form.activo.id_for_label }}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                Activo
-            </label>
-        </div>
-
-        <div class="mb-6">
-            <label for="{{form.correo.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Correo Electrónico</label>
-            {{ form.correo|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-            {% for error in form.correo.errors %}
-                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-            {% endfor %}
-        </div>
-
-        <div class="mb-6">
-            <label for="{{form.direccion.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Dirección</label>
-            {{ form.direccion|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-            {% for error in form.direccion.errors %}
-                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-            {% endfor %}
-        </div>
-
-        <div class="mb-6">
-            <label for="{{form.imagen.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Imagen del Cliente</label>
-            {{ form.imagen|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-            {% for error in form.imagen.errors %}
-                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-            {% endfor %}
-        </div>
-
-        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Crear Cliente</button>
-
-    </form>
-
 </div>
 
+<script>
+    const paisSelect = document.getElementById('id_pais');
+    const provinciaSelect = document.getElementById('id_provincia');
+    const ciudadSelect = document.getElementById('id_ciudad');
+    const urlProvincias = document.getElementById("provincias").value
+    const urlCiudades = document.getElementById("ciudades").value
+
+    // Función para actualizar selects con JSON
+    const fetchAndFill = (url, targetSelect, placeholder) => {
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                targetSelect.innerHTML = `<option value="">${placeholder}</option>`;
+                data.forEach(item => {
+                    // Nota: item.nombre_provincia o item.nombre_ciudad según tu JSON
+                    // Si usaste .values('id', 'nombre') en la vista, usa item.nombre
+                    const nombre = item.nombre || item.nombre_provincia || item.nombre_ciudad;
+                    targetSelect.add(new Option(nombre, item.id));
+                });
+            })
+            .catch(err => console.error("Error cargando datos:", err));
+    };
+
+    paisSelect.addEventListener('change', () => {
+        const paisId = paisSelect.value;
+        if (paisId) {
+            fetchAndFill(`${urlProvincias}?pais_id=${paisId}`, provinciaSelect, 'Seleccione Provincia');
+            ciudadSelect.innerHTML = '<option value="">Seleccione Ciudad</option>';
+        }
+    });
+
+    provinciaSelect.addEventListener('change', () => {
+        const provId = provinciaSelect.value;
+        if (provId) {
+            fetchAndFill(`${urlCiudades}?provincia_id=${provId}`, ciudadSelect, 'Seleccione Ciudad');
+        }
+    });
+</script>
 {% endblock %}

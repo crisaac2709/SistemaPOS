@@ -30,7 +30,7 @@ def ReporteVentasView(request):
         fecha_hasta = hoy
 
     # Queryset filtrado
-    ventas_list = Venta.objects.filter(fecha__range=[fecha_desde, fecha_hasta]).order_by('-fecha')
+    ventas_list = Venta.objects.filter(fecha__range=[fecha_desde, fecha_hasta], empresa=request.user.empresa).order_by('-fecha')
     
     # Cálculo del total (sobre el total filtrado, no solo la página)
     total_ventas = sum(v.total for v in ventas_list)
@@ -70,7 +70,7 @@ def ReporteCreditosView(request):
         fecha_hasta = hoy.date()
 
     # Créditos otorgados en el rango
-    creditos = Credito.objects.filter(fecha_inicio__range=[fecha_desde, fecha_hasta]).order_by('-fecha_inicio')
+    creditos = Credito.objects.filter(fecha_inicio__range=[fecha_desde, fecha_hasta], empresa=request.user.empresa).order_by('-fecha_inicio')
 
     creditos_activos = creditos.filter(estado='ACTIVO')
     creditos_morosos = creditos.filter(estado='MOROSO')
@@ -98,19 +98,19 @@ def ReporteInventarioView(request):
     marca_id = request.GET.get('marca')
 
     # Traer todas las categorías y marcas para los filtros
-    categorias = Categoria.objects.all()
-    marcas = Marca.objects.all()
+    categorias = Categoria.objects.filter(empresa=request.user.empresa)
+    marcas = Marca.objects.filter(empresa=request.user.empresa)
 
     # Productos activos
-    productos = Producto.objects.filter(activo=True)
+    productos = Producto.objects.filter(activo=True, empresa=request.user.empresa)
 
     # Filtro por categoría (si seleccionaron)
     if categoria_id and categoria_id != '0':
-        productos = productos.filter(categoria_id=categoria_id)
+        productos = productos.filter(categoria_id=categoria_id, empresa=request.user.empresa)
 
     # Filtro por marca (si seleccionaron)
     if marca_id and marca_id != '0':
-        productos = productos.filter(marca_id=marca_id)
+        productos = productos.filter(marca_id=marca_id, empresa=request.user.empresa)
 
     # Calculamos stock_actual para todos
     productos_inventario = []

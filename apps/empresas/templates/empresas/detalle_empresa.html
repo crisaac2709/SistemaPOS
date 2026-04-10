@@ -1,0 +1,189 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-10 px-4">
+
+    <div class="max-w-6xl mx-auto space-y-8">
+
+        <!-- HEADER PREMIUM -->
+        <div class="bg-white/80 backdrop-blur rounded-3xl shadow-lg border border-gray-100 p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">
+                    {{ empresa.nombre_comercial }}
+                </h1>
+                <p class="text-sm text-gray-500 mt-2">
+                    {{ empresa.razon_social }}
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
+                    RUC: {{ empresa.ruc }}
+                </p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                
+                <!-- STATUS -->
+                <div class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium
+                    {% if empresa.activo %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                    
+                    <span class="w-2 h-2 rounded-full 
+                        {% if empresa.activo %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
+                    
+                    {% if empresa.activo %}Activo{% else %}Inactivo{% endif %}
+                </div>
+
+                <!-- BUTTON -->
+                <button class="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-black transition shadow">
+                    <a href="{% url 'empresas:editar_empresa' %}">Editar perfil</a>
+                </button>
+
+            </div>
+        </div>
+
+
+        <!-- GRID PRINCIPAL -->
+        <div class="grid lg:grid-cols-3 gap-8">
+
+            <!-- IZQUIERDA -->
+            <div class="space-y-8">
+
+                <!-- LOGO CARD -->
+                <div class="bg-white rounded-3xl shadow-md p-6 border border-gray-100">
+                    <h2 class="text-sm font-semibold text-gray-800 mb-4">Identidad visual</h2>
+
+                    <div class="flex items-center justify-center">
+                        {% if empresa.logo %}
+                            <img src="{{ empresa.logo.url }}"
+                                 class="h-28 w-28 object-contain rounded-2xl border bg-gray-50 p-3 shadow-sm">
+                        {% else %}
+                            <div class="h-28 w-28 rounded-2xl border-2 border-dashed flex items-center justify-center text-gray-400">
+                                Sin logo
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- PLAN -->
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-3xl p-6 shadow-lg">
+                    <p class="text-sm opacity-80">Plan activo</p>
+
+                    <h3 class="text-xl font-semibold mt-1">
+                        SaaS Control
+                    </h3>
+
+                    <p class="text-sm mt-3 opacity-90">
+                        Próximo cobro:
+                    </p>
+
+                    <p class="font-bold text-lg">
+                        {{ empresa.fecha_vencimiento_plan|date:"d M, Y"|default:"Vitalicio" }}
+                    </p>
+
+                    <button class="mt-5 w-full bg-white text-blue-600 py-2 rounded-lg text-sm font-semibold hover:bg-gray-100 transition">
+                        Gestionar suscripción
+                    </button>
+                </div>
+
+            </div>
+
+
+            <!-- DERECHA -->
+            <div class="lg:col-span-2 space-y-8">
+
+                <!-- SRI -->
+                <div class="bg-white rounded-3xl shadow-md border border-gray-100 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-6">
+                        Configuración SRI
+                    </h2>
+
+                    <div class="grid sm:grid-cols-2 gap-6">
+
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-500 mb-1">Ambiente</p>
+                            {% if empresa.ambiente_sri == '1' %}
+                                <p class="text-amber-600 font-semibold">Pruebas</p>
+                            {% else %}
+                                <p class="text-blue-600 font-semibold">Producción</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-500 mb-1">Firma electrónica</p>
+                            {% if empresa.archivo_p12 %}
+                                <p class="text-green-600 font-semibold">✔ Configurada</p>
+                            {% else %}
+                                <p class="text-red-500 italic">No cargada</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-500 mb-1">Punto de emisión</p>
+                            <p class="font-mono text-gray-900">
+                                {{ empresa.cod_establecimiento }}-{{ empresa.cod_punto_emision }}
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-500 mb-1">Secuencial</p>
+                            <p class="font-mono font-bold text-gray-900 tracking-wider">
+                                {{ empresa.contador_secuencial|stringformat:"09d" }}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- CONTACTO -->
+                <div class="bg-white rounded-3xl shadow-md border border-gray-100 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-6">
+                        Información de contacto
+                    </h2>
+
+                    <div class="grid sm:grid-cols-2 gap-6">
+
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Correo</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ empresa.correo }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Teléfono</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ empresa.telefono|default:"---" }}
+                            </p>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <p class="text-xs text-gray-500 mb-1">Dirección</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ empresa.direccion }}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="text-center pt-6">
+            <p id="footer-copy" class="text-xs text-gray-400"></p>
+        </footer>
+
+    </div>
+</div>
+
+<script>
+    const f = document.getElementById("footer-copy")
+    if (f) {
+        f.innerHTML = `© ${new Date().getFullYear()} SaaS Control System`
+    }
+</script>
+
+{% endblock %}

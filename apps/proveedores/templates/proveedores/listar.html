@@ -9,7 +9,7 @@
             <p class="text-sm text-gray-500 mt-1">Lista de Proveedores</p>
         </div>
         <div class="flex gap-3">
-            {% if user.perfil.rol == "ADMIN" %}
+            {% if user.rol.nombre == "Administrador" %}
             <a href="{% url 'proveedores:registrar_proveedor' %}" 
                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm">
                 <i class="fas fa-plus mr-2"></i>
@@ -29,7 +29,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RUC</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefono</th>
-                        {% if user.perfil.rol == "ADMIN" %}
+                        {% if user.rol.nombre == "Administrador" %}
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                         {% endif %}
                     </tr>

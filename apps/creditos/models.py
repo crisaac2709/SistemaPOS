@@ -8,7 +8,10 @@ from decimal import Decimal
 from apps.productos.models import Producto
 from apps.clientes.models import Cliente
 from apps.ventas.models import Venta
-from django.contrib.auth.models import User
+
+from django.conf import settings
+from apps.empresas.models import Empresa
+
 
 def validar_positivo(valor):
     if valor < 0:
@@ -27,7 +30,7 @@ ESTADO_CREDITO = [
 
 # Create your models here.
 class Credito(models.Model):
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT)
     montoInicial = models.DecimalField(max_digits=10, decimal_places=2, null=False, validators=[validar_positivo], default=0)
     montoTotal = models.DecimalField(max_digits=10, decimal_places=2, null=False, validators=[validar_positivo])
     fecha_inicio = models.DateField(null=False)
@@ -36,9 +39,10 @@ class Credito(models.Model):
     montoCuota = models.DecimalField(max_digits=10, decimal_places=2, null=True, validators=[validar_positivo])
     tipo_pago = models.CharField(max_length=7, choices=TIPO_PAGO, null=False)
     estado = models.CharField(max_length=10, default="ACTIVO", choices=ESTADO_CREDITO, null=False)
-    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, null=True)
+    venta = models.ForeignKey(Venta, on_delete=models.SET_NULL, null=True)
     cuotas_pagadas = models.IntegerField(default=0)
-    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
 
 
     def __str__(self):
@@ -171,14 +175,16 @@ FORMAS_PAGO = [
          ('TRANSFERENCIA', 'Transferencia'),
     ]
 
+
 class Pago(models.Model):
     credito = models.ForeignKey(Credito, on_delete=models.CASCADE)
-    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     fecha = models.DateField(auto_now=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2, validators=[validar_positivo])
     cuota = models.IntegerField(validators=[validar_positivo])
     metodo_pago = models.CharField(max_length=13, choices=FORMAS_PAGO, default='EFECTIVO')
     comentarios = models.TextField(blank=True, null=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
 
     def __str__(self):
          return f'Credito #{self.credito.id} -- Cliente: {self.credito.cliente} -- Pago: {self.id}'
@@ -187,6 +193,7 @@ class Pago(models.Model):
 
 class PlazoCredito(models.Model):
     meses = models.IntegerField(unique=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.meses} meses"
@@ -196,6 +203,7 @@ class PlanCredito(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='planes_credito')
     plazo = models.ForeignKey(PlazoCredito, on_delete=models.CASCADE)
     precio = models.DecimalField(max_digits=12, decimal_places=2)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.producto.nombre} - {self.plazo.meses} meses - ${self.precio}"

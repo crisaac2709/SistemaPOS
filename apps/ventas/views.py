@@ -49,7 +49,6 @@ def crear_venta(request):
                     for detalle in detalles:
                         detalle.venta = venta
                         detalle.precio_unitario = Decimal(detalle.precio_unitario)
-                        print(detalle.precio_unitario)
                         detalle.calcular_total()
                         subtotal += detalle.precio_unitario * detalle.cantidad
                         producto = detalle.producto
@@ -74,12 +73,10 @@ def crear_venta(request):
                         venta.subtotal = subtotal + interes
                     else:
                         venta.subtotal = subtotal
-
+                    
+                    venta.empresa = request.user.empresa
                     venta.iva = venta.subtotal * porcentaje_iva
                     venta.total = venta.subtotal + venta.iva
-
-                    print("Metodo de pago")
-                    print(venta.metodo_pago.nombre_metodo)
                     # 3. Guardar venta con commit
                     venta.usuario = request.user
                     venta.save()
@@ -110,7 +107,8 @@ def crear_venta(request):
                             fecha_inicio=fecha_inicio,
                             fecha_fin=fecha_fin,
                             tipo_pago=forma_pago_credito,
-                            venta=venta  
+                            venta=venta,
+                            empresa=request.user.empresa
                         )
 
                         if not credito.verificarFechaFinalizacion():
@@ -178,7 +176,8 @@ def buscar_clientes(request):
         Q(apellidos__icontains=termino) |
         Q(correo__icontains=termino) |
         Q(dni__icontains=termino),
-        activo=True
+        activo=True,
+        empresa=request.user.empresa
     )
     datos = [{
         'id': cliente.id,
@@ -199,7 +198,7 @@ def buscar_productos(request):
 
     # 1. Definimos el cálculo del stock usando annotate
     # Coalesce convierte el NULL en 0 para evitar errores matemáticos
-    queryset = Producto.objects.annotate(
+    queryset = Producto.objects.filter(empresa=request.user.empresa).annotate(
         stock_calculado=Coalesce(
             Sum(Case(
                 When(movimientos_stock__tipo='entrada', then='movimientos_stock__cantidad'),
@@ -216,11 +215,12 @@ def buscar_productos(request):
 
     # 2. Aplicamos los filtros de búsqueda y la condición de stock > 0
     if producto_id:
-        resultados = queryset.filter(id=producto_id, stock_calculado__gt=0)
+        resultados = queryset.filter(id=producto_id, stock_calculado__gt=0, empresa=request.user.empresa)
     else:
         resultados = queryset.filter(
             Q(nombre__icontains=termino) | Q(descripcion__icontains=termino),
-            stock_calculado__gt=0
+            stock_calculado__gt=0,
+            empresa=request.user.empresa
         ).distinct()
 
     # 3. Construimos la respuesta
@@ -244,10 +244,10 @@ class ListarVentas(LoginRequiredMixin, ListView):
     
     def get_queryset(self):
         user = self.request.user
-        if hasattr(user, 'perfil') and user.perfil.rol == 'ADMIN':
-            return Venta.objects.all().order_by("-pk")
+        if user.rol.nombre == 'Administrador':
+            return Venta.objects.filter(empresa=self.request.user.empresa).order_by("-pk")
         else:
-            return Venta.objects.filter(usuario=user).order_by("-fecha")
+            return Venta.objects.filter(usuario=user, empresa=self.request.user.empresa).order_by("-fecha")
 
 
 class DetalleVentaView(LoginRequiredMixin, DetailView):
@@ -255,10 +255,11 @@ class DetalleVentaView(LoginRequiredMixin, DetailView):
     template_name = 'ventas/detalle.html'
     context_object_name = "venta"
 
+
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
-        contexto['detalles'] = DetalleVenta.objects.filter(venta=self.object)
-        contexto['cliente'] = Cliente.objects.get(id = self.object.cliente_id)
+        contexto['detalles'] = DetalleVenta.objects.filter(venta=self.object, empresa=self.request.user.empresa)
+        contexto['cliente'] = Cliente.objects.get(id = self.object.cliente_id, empresa=self.request.user.empresa)
         return contexto
 
 
@@ -267,7 +268,8 @@ class EliminarVentaView(LoginRequiredMixin, DeleteView):
     template_name = 'ventas/eliminar.html'
     success_url = reverse_lazy('ventas:listar_ventas')
 
-
+    def get_queryset(self):
+        return Venta.objects.filter(empresa=self.request.user.empresa)
 
 @login_required
 def analisis_productos(request):
@@ -286,7 +288,7 @@ def analisis_productos(request):
         filtro_detalle['categoria_id'] = categoria_id
 
     # Productos más vendidos
-    mas_vendidos = Producto.objects.filter(**filtro_detalle).annotate(
+    mas_vendidos = Producto.objects.filter(**filtro_detalle, empresa=self.request.user.empresa).annotate(
         total_vendido=Coalesce(Sum('detalleventa__cantidad'), 0),
         veces_vendido=Count('detalleventa'),
         ingreso_total=Coalesce(
@@ -302,7 +304,7 @@ def analisis_productos(request):
     ).order_by('-total_vendido')[:5]
 
     # Productos menos vendidos (excluyendo los no vendidos)
-    menos_vendidos = Producto.objects.filter(**filtro_detalle).annotate(
+    menos_vendidos = Producto.objects.filter(**filtro_detalle, empresa=self.request.user.empresa).annotate(
         total_vendido=Coalesce(Sum('detalleventa__cantidad'), 0),
         veces_vendido=Count('detalleventa'),
         ingreso_total=Coalesce(
@@ -318,7 +320,7 @@ def analisis_productos(request):
     ).filter(total_vendido__gt=0).order_by('total_vendido')[:5]
 
     # Productos no vendidos (se filtran por categoría si se selecciona)
-    no_vendidos = Producto.objects.all()
+    no_vendidos = Producto.objects.filter(empresa=request.user.empresa)
 
     if categoria_id:
         no_vendidos = no_vendidos.filter(categoria_id=categoria_id)
@@ -328,7 +330,7 @@ def analisis_productos(request):
     ).filter(veces_vendido=0)
 
     # Productos con mejor margen de ganancia
-    mejor_margen = Producto.objects.filter(**filtro_detalle).annotate(
+    mejor_margen = Producto.objects.filter(**filtro_detalle, empresa=request.user.empresa).annotate(
         margen_ganancia=Coalesce(
             Sum(F('detalleventa__cantidad') * (F('detalleventa__precio_unitario') - F('costo'))),
             Decimal(0),
@@ -342,7 +344,7 @@ def analisis_productos(request):
     ).order_by('-margen_ganancia')[:5]
 
     # Productos con stock bajo (no necesita filtro por fecha)
-    stock_bajo = Producto.objects.annotate(
+    stock_bajo = Producto.objects.filter(empresa=request.user.empresa).annotate(
         entradas=Sum(
             Case(
                 When(movimientos_stock__tipo='entrada', then=F('movimientos_stock__cantidad')),
@@ -366,12 +368,12 @@ def analisis_productos(request):
     )
 
     # Estadísticas adicionales
-    total_productos = Producto.objects.count()
-    cantidad_productos_venta = Producto.objects.annotate(
+    total_productos = Producto.objects.filter(empresa=request.user.empresa).count()
+    cantidad_productos_venta = Producto.objects.filter(empresa=request.user.empresa).annotate(
         total_vendido=Coalesce(Sum('detalleventa__cantidad'), 0)
     ).filter(total_vendido__gt=0).count()
 
-    categorias = Categoria.objects.all()
+    categorias = Categoria.objects.filter(empresa=request.user.empresa)
 
     context = {
         'mas_vendidos': mas_vendidos,
@@ -391,10 +393,10 @@ def analisis_productos(request):
 from datetime import datetime
 @login_required
 def generar_factura_pdf(request, pk):
-    venta = get_object_or_404(Venta, pk=pk)
-    detalles = DetalleVenta.objects.filter(venta=venta)
-    logo_path = os.path.join(settings.MEDIA_ROOT, 'hogar.png')
-    porcentaje_iva = Decimal(Impuesto.objects.get(nombre='IVA').porcentaje) 
+    venta = get_object_or_404(Venta, pk=pk, empresa=request.user.empresa)
+    detalles = DetalleVenta.objects.filter(venta=venta, empresa=request.user.empresa)
+    logo_path = request.user.empresa.logo
+    porcentaje_iva = Decimal(Impuesto.objects.get(nombre='IVA', empresa=request.user.empresa).porcentaje) 
     
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
@@ -538,5 +540,5 @@ def generar_factura_pdf(request, pk):
     pdf = buffer.getvalue()
     buffer.close()
     response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="factura_{venta.pk}.pdf"'
+    response['Content-Disposition'] = f'inline; filename="factura_#{venta.pk}_{venta.cliente.nombres}_{venta.cliente.apellidos}.pdf"'
     return response

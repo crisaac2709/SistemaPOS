@@ -1,12 +1,21 @@
 from django import forms
-from .models import Cliente
+from .models import Cliente, Provincia, Ciudad, Pais
 from datetime import date
 
 class RegistrarClienteForm(forms.ModelForm):
-
+    pais = forms.ModelChoiceField(
+        queryset=Pais.objects.all(), 
+        required=False, 
+        label="País"
+    )
+    provincia = forms.ModelChoiceField(
+        queryset=Provincia.objects.none(), 
+        required=False, 
+        label="Provincia"
+    )
     class Meta:
         model = Cliente
-        fields = ['nombres', 'apellidos', 'correo', 'telefono', 'ciudad', 'direccion', 'dni', 'fecha_nacimiento', 'imagen', 'activo']
+        fields = ['nombres', 'apellidos', 'correo', 'telefono', 'pais', 'provincia', 'ciudad', 'direccion', 'dni', 'fecha_nacimiento', 'activo']
         widgets = {
             'fecha_nacimiento': forms.DateInput(
                 attrs={'type': 'date'},
@@ -16,11 +25,33 @@ class RegistrarClienteForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['imagen'].required = False
         self.fields['ciudad'].required = False
         self.fields['direccion'].required = False
         self.fields['activo'].initial = True 
         self.fields['fecha_nacimiento'].input_formats = ['%Y-%m-%d']
+
+        # Si estamos editando o hay datos en POST
+        if 'pais' in self.data:
+            try:
+                pais_id = int(self.data.get('pais'))
+                self.fields['provincia'].queryset = Provincia.objects.filter(pais_id=pais_id)
+            except (ValueError, TypeError):
+                self.fields['provincia'].queryset = Provincia.objects.none()
+        
+        if 'provincia' in self.data:
+            try:
+                prov_id = int(self.data.get('provincia'))
+                self.fields['ciudad'].queryset = Ciudad.objects.filter(provincia_id=prov_id)
+            except (ValueError, TypeError):
+                self.fields['ciudad'].queryset = Ciudad.objects.none()
+
+        elif self.instance.pk and self.instance.ciudad:
+            self.fields['provincia'].queryset = Provincia.objects.filter(pais=self.instance.ciudad.provincia.pais)
+            self.fields['ciudad'].queryset = Ciudad.objects.filter(provincia=self.instance.ciudad.provincia)
+            # Pre-seleccionar los valores en los campos manuales
+            self.initial['pais'] = self.instance.ciudad.provincia.pais.id
+            self.initial['provincia'] = self.instance.ciudad.provincia.id
+
 
     def clean_nombres(self):
         nombres = self.cleaned_data.get('nombres', '').strip()

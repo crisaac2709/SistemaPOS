@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CrearCliente, ActualizarCliente, ListarClientes, EliminarCliente, VerDetalleCliente, historial_compra_cliente
+from .views import cargar_provincias, cargar_ciudades, CrearCliente, ActualizarCliente, ListarClientes, EliminarCliente, VerDetalleCliente, historial_compra_cliente
 
 app_name = "clientes"
 
@@ -10,4 +10,6 @@ urlpatterns = [
     path('detalle_cliente/<int:pk>/', VerDetalleCliente.as_view(), name="detalle_cliente"),
     path('eliminar_cliente/<int:pk>/', EliminarCliente.as_view(), name="eliminar_cliente"),
     path('cliente/<int:cliente_id>/historial', historial_compra_cliente, name="historial_compra_cliente"),
+    path('api/provincias/', cargar_provincias, name="cargar_provincias"),
+    path('api/ciudades/', cargar_ciudades, name="cargar_ciudades"),
 ]

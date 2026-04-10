@@ -1,22 +1,24 @@
 from django.urls import path, reverse_lazy
 from .views import (
-    Registrar, MyLoginView, MyLogoutView, Configurar_Perfil, 
-    Mi_Perfil, redireccion_post_login, EmpleadoHome, 
-    panel_actividades_admin
+    Registrar_Empleados, Registro_Administrador, MyLoginView, MyLogoutView, 
+    Mi_Perfil, EmpleadoHome, 
+    panel_actividades_admin, iniciar_sesion, 
+    Dashboard_Administrador
 )
 from django.contrib.auth import views as auth_views
 
 app_name = "usuarios"
 
 urlpatterns = [
-    path('registro/', Registrar, name="registro"),
-    path('login/', MyLoginView.as_view(), name='login'),
+    path('registro_usuarios/', Registrar_Empleados, name="registro_usuarios"),
+    path('registro_administrador/', Registro_Administrador, name="registro_administrador"),
+    #path('login/', MyLoginView.as_view(), name='login'),
+    path('login/', iniciar_sesion, name='login'),
     path('logout/', MyLogoutView, name='logout'),
-    path('configurar_perfil/', Configurar_Perfil, name='configurar_perfil'),
     path("mi_perfil", Mi_Perfil, name="perfil"),
-    path('redirigir-rol/', redireccion_post_login, name='redirigir_rol'),
     path('empleado_home/', EmpleadoHome, name='empleado_home'),
     path('panel-actividades/', panel_actividades_admin, name='panel_actividades'),
+    path("dashboard_admin/", Dashboard_Administrador, name="admin_home"),
 
     # Recuperación de contraseña
     path(

@@ -1,99 +1,116 @@
 {% extends 'layouts/base.html' %}
-
 {% load widget_tweaks %}
 
 {% block content %}
+<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-8 py-10 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-extrabold tracking-tight">Gestión de Inventario</h2>
+                        <p class="mt-2 text-emerald-100 text-sm">Registre los detalles técnicos, precios y stock de su nuevo producto.</p>
+                    </div>
+                    <div class="hidden sm:block">
+                        <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<!-- component -->
-<div class="max-w-2xl mx-auto bg-white p-16">
-    <div class="flex justify-center mb-6">
-        <img src="https://cdn-icons-png.flaticon.com/512/1044/1044967.png" alt="Logo" class="h-16">
+            <form method="POST" enctype="multipart/form-data" class="p-8 space-y-8">
+                {% csrf_token %}
+
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-2 mb-6 flex items-center">
+                        <span class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mr-3 text-sm font-bold">01</span>
+                        Información del Producto
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2 space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Nombre del Producto</label>
+                            {{ form.nombre|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" }}
+                            {% if form.nombre.errors %}<p class="text-red-500 text-xs mt-1">{{ form.nombre.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Marca</label>
+                            {{ form.marca|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none" }}
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Categoría</label>
+                            {{ form.categoria|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-2 mb-6 flex items-center">
+                        <span class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mr-3 text-sm font-bold">02</span>
+                        Costos y Distribución
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Costo Unitario</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">$</span>
+                                {{ form.costo|add_class:"w-full pl-7 pr-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none" }}
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Precio de Venta</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">$</span>
+                                {{ form.precio|add_class:"w-full pl-7 pr-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none" }}
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Proveedor</label>
+                            {{ form.proveedor|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-2 mb-6 flex items-center">
+                        <span class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mr-3 text-sm font-bold">03</span>
+                        Apariencia y Estado
+                    </h3>
+                    <div class="space-y-6">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700">Descripción del Producto</label>
+                            {{ form.descripcion|add_class:"w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none"|attr:"rows:3" }}
+                        </div>
+                        
+                        <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+                            <div class="w-full md:w-2/3">
+                                <label class="text-sm font-medium text-slate-700 block mb-2">Imagen del Producto</label>
+                                {{ form.imagen|add_class:"block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition-all" }}
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <div class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.activo|add_class:"sr-only peer"|attr:"id:id_activo_prod" }}
+                                    <label for="id_activo_prod" class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></label>
+                                    <span class="ml-3 text-sm font-medium text-slate-700">Disponible</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-slate-100">
+                    <a href="{% url 'productos:listar_productos' %}" class="px-6 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors">Descartar</a>
+                    <button type="submit" class="px-8 py-2.5 bg-emerald-600 text-white font-bold rounded-lg shadow-lg shadow-emerald-200 hover:bg-emerald-700 hover:shadow-none transition-all focus:ring-4 focus:ring-emerald-300">
+                        Guardar Producto
+                    </button>
+                </div>
+
+            </form>
+        </div>
     </div>
-    <h2 class="text-2xl font-bold mb-4 text-center">Añadir Producto</h2>
-
-    <form method="POST" enctype="multipart/form-data">
-
-        {% csrf_token %}
-
-        <div class="grid gap-6 mb-6 lg:grid-cols-2">
-            <div class="mb-6">
-                <label for="{{form.nombre.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Nombre del Producto</label>
-                {{ form.nombre|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.nombre.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div class="mb-6">
-                <label for="{{form.marca.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Marca</label>
-                {{ form.marca|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.marca.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div class="mb-6">
-                <label for="{{form.categoria.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Categoria</label>
-                {{ form.categoria|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.categoria.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div class="mb-6">
-                <label for="{{form.proveedor.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Proveedor</label>
-                {{ form.proveedor|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.proveedor.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div class="mb-6">
-                <label for="{{form.costo.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Costo</label>
-                {{ form.costo|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.costo.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-
-            <div class="mb-6">
-                <label for="{{form.precio.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Precio</label>
-                {{ form.precio|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-                {% for error in form.precio.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="mb-6 flex items-center">
-            <input type="checkbox" id="{{ form.activo.id_for_label }}" name="{{ form.activo.html_name }}"
-                    {% if form.activo.value %}checked{% endif %}
-                    class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" />
-            <label for="{{ form.activo.id_for_label }}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                Activo
-            </label>
-        </div>
-
-        <div class="mb-6">
-            <label for="{{form.descripcion.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Descripción</label>
-            {{ form.descripcion|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-            {% for error in form.descripcion.errors %}
-                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-            {% endfor %}
-        </div>
-
-        <div class="mb-6">
-            <label for="{{form.imagen.id_for_label}}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Imagen del Producto</label>
-            {{ form.imagen|attr:"class:w-full border rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
-            {% for error in form.imagen.errors %}
-                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-            {% endfor %}
-        </div>
-
-        <button type="submit" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-            Guardar Producto
-        </button>
-    </form>
 </div>
-
 {% endblock %}

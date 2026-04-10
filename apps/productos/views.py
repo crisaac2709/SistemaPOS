@@ -21,7 +21,7 @@ class CrearProductoView(LoginRequiredMixin, CreateView):
     template_name = 'productos/crear.html'
     
     def form_valid(self, form):
-        self.object = form.save()
+        form.instance.empresa = self.request.user.empresa
         return super().form_valid(form)
     
     def get_success_url(self):
@@ -36,7 +36,7 @@ class ListarProductos(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = Producto.objects.filter(empresa=self.request.user.empresa)
         search = self.request.GET.get('search', '')
 
         if search:
@@ -49,11 +49,18 @@ class DetalleProducto(LoginRequiredMixin, DetailView):
     model = Producto
     template_name = 'productos/detalle.html'
 
+    def get_queryset(self):
+        queryset = Producto.objects.filter(empresa=self.request.user.empresa)
+        return queryset
 
 class ActualizarProducto(LoginRequiredMixin, UpdateView):
     model = Producto
     form_class = CrearProducto
     template_name = 'productos/update.html'
+
+    def get_queryset(self):
+        queryset = Producto.objects.filter(empresa=self.request.user.empresa)
+        return queryset
 
     def form_valid(self, form):
         self.object = form.save()
@@ -68,11 +75,14 @@ class EliminarProducto(LoginRequiredMixin, DeleteView):
     template_name = 'productos/eliminar.html'
     success_url = reverse_lazy('productos:listar_productos')
 
+    def get_queryset(self):
+        queryset = Producto.objects.filter(empresa=self.request.user.empresa)
+        return queryset
 
 @login_required
 def buscar_productos(request):
     query = request.GET.get("query", "")
-    productos = Producto.objects.filter(nombre__icontains = query)
+    productos = Producto.objects.filter(nombre__icontains = query, empresa=request.user.empresa)
 
     data = [
         {"id": producto.pk, "nombre": producto.nombre}
@@ -83,7 +93,7 @@ def buscar_productos(request):
 
 @login_required
 def productos_bajo_stock(request):
-    productos = Producto.objects.annotate(
+    productos = Producto.objects.filter(empresa=request.user.empresa).annotate(
         entradas=Sum(Case(
             When(movimientos_stock__tipo='entrada', then=F('movimientos_stock__cantidad')),
             default=Value(0),
@@ -113,14 +123,14 @@ def productos_bajo_stock(request):
 
 @login_required
 def movimientos_stock(request):
-    productos = Producto.objects.order_by('nombre')
+    productos = Producto.objects.filter(empresa=request.user.empresa).order_by('nombre')
 
     producto_input = request.GET.get('producto')
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
 
-    movimientos = Stock.objects.all().order_by('-fecha')
-
+    movimientos = Stock.objects.filter(empresa=request.user.empresa).order_by('-fecha')
+    
     if producto_input:
         try:
             producto_id = int(producto_input)
@@ -163,6 +173,7 @@ def ingresar_unidades(request):
                     movimiento.tipo = 'entrada'
                     movimiento.usuario = request.user
                     movimiento.save()
+                    movimiento.empresa = request.user.empresa
                     Actividad.objects.create(
                         usuario=request.user,
                         descripcion=f"Ingresaste {movimiento.cantidad} unidades del producto {movimiento.producto.nombre}"

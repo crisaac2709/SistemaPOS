@@ -37,6 +37,7 @@ def CrearCreditoView(request):
         creditoForm = RegistrarCreditoForm(request.POST)
         if creditoForm.is_valid():
             credito = creditoForm.save(commit=False)
+            credito.empresa = request.user.empresa
             credito.CalcularMontoCuota()
             credito.usuario = request.user
             credito.save()
@@ -65,7 +66,8 @@ class ListarCreditosView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = Credito.objects.filter(empresa = self.request.user.empresa)
+        return queryset
 
         search = self.request.GET.get('search')
         estado = self.request.GET.get('estado')
@@ -109,6 +111,9 @@ class DetalleCreditoView(LoginRequiredMixin, DetailView):
     model = Credito
     template_name = 'creditos/detalle_credito.html'
 
+    def get_queryset(self):
+        return Credito.objects.filter(empresa = self.request.user.empresa)
+
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
         
@@ -133,21 +138,27 @@ class EliminarCreditoView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('creditos:listar_creditos')
     template_name = "creditos/eliminar.html"
 
+    def get_queryset(self):
+        return Credito.objects.filter(empresa = self.request.user.empresa)
+
 
 class DashboardCreditosView(LoginRequiredMixin, TemplateView):
     template_name = 'creditos/dashboard.html'
+
+    def get_queryset(self):
+        return Credito.objects.filter(empresa = self.request.user.empresa)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         hoy = date.today()
 
         # Verificamos estado actualizado para todos los créditos
-        for credito in Credito.objects.all():
+        for credito in Credito.objects.filter(empresa = self.request.user.empresa):
             credito.CompararMontoPagado()
             credito.verificar_estado()
 
         # Obtenemos créditos con estado finalizado, moroso o activo
-        creditos = Credito.objects.select_related('cliente', 'venta').prefetch_related(
+        creditos = Credito.objects.filter(empresa = self.request.user.empresa).select_related('cliente', 'venta').prefetch_related(
             Prefetch('venta__detalles',  
                 queryset=DetalleVenta.objects.select_related('producto'))
         )
@@ -159,14 +170,12 @@ class DashboardCreditosView(LoginRequiredMixin, TemplateView):
             if credito.CompararMontoPagado() == False:
                 cuotas_atrasadas = credito.verificar_pago_pendiente()
                 if cuotas_atrasadas:
-                    print(cuotas_atrasadas)
                     credito.num_cuotas_atrasadas = len(cuotas_atrasadas)  
                     creditos_con_cuotas_atrasadas.append(credito)
 
         
         # Créditos que ya finalizaron y están morosos (fecha_fin pasada y estado MOROSO)
         creditos_final_morosos = creditos.filter(fecha_fin__lt=hoy, estado='MOROSO')
-        print(creditos_final_morosos)
 
         context['creditos_vencidos'] = list(creditos_final_morosos)
         context['creditos_cuotas_atrasadas'] = creditos_con_cuotas_atrasadas
@@ -203,7 +212,7 @@ class DashboardCreditosView(LoginRequiredMixin, TemplateView):
 
 
 def obtener_planes_credito(request, producto_id):
-    planes = PlanCredito.objects.filter(producto_id=producto_id).select_related('plazo').order_by('plazo__meses')
+    planes = PlanCredito.objects.filter(producto_id=producto_id, empresa= request.user.empresa).select_related('plazo').order_by('plazo__meses')
     
     data = [
         {
@@ -227,6 +236,7 @@ def RegistrarPagoView(request, pk):
             pago = PagoForm.save(commit=False)
             pago.credito = credito
             pago.usuario = request.user
+            pago.empresa = request.user.empresa
             pago.cuota = Pago.objects.filter(credito=pk).count() + 1
             credito.cuotas_pagadas = pago.cuota
 
@@ -269,10 +279,10 @@ def RegistrarPagoView(request, pk):
 
     return render(request, 'pagos/registrar_pago.html', contexto)
 
+
 def calendario(request, credito_id):
     # Obtiene el crédito del cliente
-    credito = Credito.objects.get(id=credito_id)
-    
+    credito = get_object_or_404(Credito, id=credito_id, empresa=request.user.empresa)    
     # Genera las fechas de pago
     fechas_pago = credito.generar_fechas_pago()
     
@@ -312,7 +322,7 @@ def calendario(request, credito_id):
 @login_required
 def generar_comprobante_pago(request, pk):
     # Obtener los datos necesarios
-    pago = get_object_or_404(Pago, pk=pk)
+    pago = get_object_or_404(Pago, pk=pk, empresa = request.user.empresa)
     credito = pago.credito
     cliente = credito.cliente
     monto_pagado = credito.CalcularMontoPagado()
@@ -330,18 +340,18 @@ def generar_comprobante_pago(request, pk):
 @login_required
 def GenerarContrato(request, pk):
     # Datos de la empresa
-    empresa = 'Comercial Feria Hogar'
-    propietario = 'Roberto Oña y Blanca Chango'
-    correo = "crisaac2002@gmail.com"
-    #ruc = '0500667613001'
-    telefono = '0990216833 / 0997326465'
-    direccion = 'Av. 9 de Octubre, Naranjito, Ecuador'
+    empresa = request.user.empresa.nombre_comercial
+    #propietario = 'Roberto Oña y Blanca Chango'
+    correo = request.user.empresa.correo
+    ruc = request.user.empresa.ruc
+    telefono = request.user.empresa.telefono
+    direccion = request.user.empresa.direccion
 
     # Crear buffer PDF
     buffer = BytesIO()
 
     # Obtener el crédito
-    credito = get_object_or_404(Credito, pk=pk)
+    credito = get_object_or_404(Credito, pk=pk, empresa=request.user.empresa)
 
     # Canvas
     logo_path = os.path.join(settings.MEDIA_ROOT, 'hogar.PNG')
@@ -382,8 +392,8 @@ def GenerarContrato(request, pk):
     p.setFont("Courier-Bold", 10)
     p.drawString(inch, 9.5 * inch, "Datos de la empresa")
     p.setFont("Courier", 10)
-    p.drawString(inch, 9.25 * inch, f"Empresa: {empresa}")
-    p.drawString(inch, 9 * inch, f"Propietario: {propietario}")
+    p.drawString(inch, 9.25 * inch, f"Nombre Comercial: {empresa}")
+    p.drawString(inch, 9 * inch, f"RUC: {ruc}")
     p.drawString(inch, 8.75 * inch, f"Correo: {correo}")
     p.drawString(inch, 8.5 * inch, f"Teléfono: {telefono}")
     p.drawString(inch, 8.25 * inch, direccion)
